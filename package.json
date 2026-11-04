@@ -1,0 +1,83 @@
+{
+  "name": "localterm",
+  "version": "1.5.5",
+  "description": "Local SSH client with portable encrypted vaults",
+  "main": "src/main.cjs",
+  "author": "LocalTerm",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "build": "electron-builder --mac dir --publish never",
+    "build:win": "electron-builder --win zip portable --x64 --publish never"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "electron": "^42.0.0",
+    "electron-builder": "^26.0.12",
+    "jsdom": "^30.1.3",
+    "playwright": "^1.58.0"
+  },
+  "build": {
+    "appId": "local.localterm.desktop",
+    "productName": "LocalTerm",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "COPYRIGHT",
+      "LICENSE"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "identity": null,
+      "extraResources": [
+        {
+          "from": "node_modules/electron/dist/LICENSE",
+          "to": "LICENSE.electron.txt"
+        },
+        {
+          "from": "node_modules/electron/dist/LICENSES.chromium.html",
+          "to": "LICENSES.chromium.html"
+        }
+      ]
+    },
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        "zip",
+        "portable"
+      ],
+      "signAndEditExecutable": false,
+      "artifactName": "LocalTerm-${version}-Windows-${arch}.${ext}",
+      "files": [
+        "src/**/*",
+        "package.json",
+        "COPYRIGHT",
+        "LICENSE",
+        "!**/*.node",
+        "!dist/**"
+      ]
+    },
+    "portable": {
+      "artifactName": "LocalTerm-${version}-Windows-${arch}-Portable.exe",
+      "useZip": true
+    },
+    "extraResources": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "COPYRIGHT",
+        "to": "COPYRIGHT"
+      }
+    ]
+  }
+}
