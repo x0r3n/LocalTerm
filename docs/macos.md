@@ -10,7 +10,7 @@ A közös alkalmazásfelület macOS-en, mintahostokkal. A Windows README ugyanaz
 
 ## Telepítés és frissítés
 
-A [LocalTerm-1.5.5-Mac-AppleSilicon.zip](../builds/macos/1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip) Apple Silicon (M-sorozatú) Macre készült. Bontsd ki, majd másold a `LocalTerm.app` alkalmazást az Applications mappába. Frissítés előtt lépj ki a régi példányból, majd cseréld le az alkalmazást. A saját vaultfájlt ne cseréld le. Intel Macre ez a build nem megfelelő.
+A [LocalTerm-1.5.5-Mac-AppleSilicon.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip) Apple Silicon (M-sorozatú) Macre készült. Bontsd ki, majd másold a `LocalTerm.app` alkalmazást az Applications mappába. Frissítés előtt lépj ki a régi példányból, majd cseréld le az alkalmazást. A saját vaultfájlt ne cseréld le. Intel Macre ez a build nem megfelelő.
 
 A build nincs digitálisan aláírva vagy notarizálva. Node.js vagy Electron külön telepítése nem szükséges a futtatáshoz.
 
@@ -109,7 +109,7 @@ npm run build
 
 Eredmény: `dist/mac-arm64/LocalTerm.app`. A forrás mindkét asztali platformot támogatja; a macOS- és Windows-csomagok egy közös repóban találhatók.
 
-A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](../builds/macos/1.5.5/SHA256SUMS.txt).
+A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/SHA256SUMS.txt).
 
 ## Licenc
 

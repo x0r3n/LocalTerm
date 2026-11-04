@@ -8,10 +8,10 @@ Helyi SSH-kliens macOS-re és Windowsra, hordozható, jelszóval titkosított va
 
 | Platform | Kész csomag |
 |---|---|
-| macOS / Apple Silicon | [Mac ZIP](builds/macos/1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip) |
-| Windows / Intel–AMD x64 | [Portable EXE](builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe) · [Teljes ZIP](builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64.zip) |
+| macOS / Apple Silicon | [Mac ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip) |
+| Windows / Intel–AMD x64 | [Portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe) · [Teljes ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64.zip) |
 
-A fájl oldalán a **Download raw file** gombbal töltsd le a csomagot. A kész alkalmazásokhoz nem szükséges Node.js vagy Electron telepítése. SHA-256 ellenőrzőösszegek: [SHA256SUMS.txt](SHA256SUMS.txt).
+A kész alkalmazásokat a [GitHub Release v1.5.5](https://github.com/x0r3n/LocalTerm/releases/tag/v1.5.5) mellékleteiből töltheted le, Git és Git LFS telepítése nélkül. Node.js vagy Electron külön telepítése sem szükséges. A csatolt fájlok ellenőrzőösszegei: [SHA256SUMS.txt](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/SHA256SUMS.txt).
 
 Telepítés, macOS-karanténjelölés kezelése és részletes használat: [macOS útmutató](docs/macos.md) · [Windows útmutató](docs/windows.md).
 
@@ -47,7 +47,7 @@ cd LocalTerm
 git lfs pull
 ```
 
-A GitHub automatikus **Download ZIP** forrásletöltésében a buildek helyett LFS-hivatkozások lehetnek. A kész alkalmazást a fenti platformlinkről, a teljes forrást a [külön forráscsomagból](releases/1.5.5/LocalTerm-1.5.5-source.zip) töltsd le.
+A GitHub automatikus **Download ZIP** forrásletöltésében a buildek helyett LFS-hivatkozások lehetnek. A kész alkalmazást a fenti platformlinkről, a teljes forrást a [külön forráscsomagból](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-source.zip) töltsd le.
 
 ## Fejlesztés és build
 

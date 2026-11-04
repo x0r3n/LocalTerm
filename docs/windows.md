@@ -10,8 +10,8 @@ A közös alkalmazásfelület macOS-en, mintahostokkal. A Windows README ugyanaz
 
 ## Indítás és frissítés
 
-- [LocalTerm-1.5.5-Windows-x64-Portable.exe](../builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe): önálló portable futtatható fájl. Nem telepítő; indításkor kibontja és futtatja az alkalmazást.
-- [LocalTerm-1.5.5-Windows-x64.zip](../builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64.zip): bontsd ki teljes egészében, majd indítsd a `LocalTerm.exe` fájlt. A mellette lévő fájlokat és mappákat hagyd a helyükön.
+- [LocalTerm-1.5.5-Windows-x64-Portable.exe](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe): önálló portable futtatható fájl. Nem telepítő; indításkor kibontja és futtatja az alkalmazást.
+- [LocalTerm-1.5.5-Windows-x64.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64.zip): bontsd ki teljes egészében, majd indítsd a `LocalTerm.exe` fájlt. A mellette lévő fájlokat és mappákat hagyd a helyükön.
 
 Intel/AMD 64 bites Windowsra készült; külön Windows ARM-csomag nincs. Node.js vagy Electron telepítése nem szükséges. Frissítés előtt zárd be a régi alkalmazást. A saját vault külön fájl marad. A kiadás nincs digitálisan aláírva.
 
@@ -94,7 +94,7 @@ npm run build:win
 
 Windows x64 ZIP és portable EXE készül a `dist/` mappában. A kiadott csomag macOS-en, a Windows Electron-futtatókörnyezetével készült. Az opcionális natív SSH-gyorsító modulok kimaradnak a Windows-csomagból; a hordozható SSH-megvalósítás használatos.
 
-A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](../builds/windows/1.5.5/SHA256SUMS.txt).
+A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/SHA256SUMS.txt).
 
 ## Licenc
 
