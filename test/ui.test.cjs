@@ -12,13 +12,13 @@ async function setup({ deferConnect = false, platform = 'darwin', initialHosts =
   const dom = new JSDOM(fs.readFileSync(path.join(__dirname, '../src/index.html'), 'utf8'), { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://localterm.test' });
   const w = dom.window;
   w.structuredClone = structuredClone;
-  const records = []; const listeners = {}; let data = { hosts: structuredClone(initialHosts), keys: [], snippets: [], knownHosts: {}, settings: {} }; let locked = true;
+  const terminals=[];const records = []; const listeners = {}; let data = { hosts: structuredClone(initialHosts), keys: [], snippets: [], knownHosts: {}, settings: {} }; let locked = true;
   const snapshot = () => ({ locked, path: '/tmp/example.ltvault', ...(locked ? {} : { data: structuredClone(data) }) });
   w.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
   w.HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new w.Event('close')); };
   w.confirm = () => true;
   w.ResizeObserver = class { observe() {} disconnect() {} };
-  w.Terminal = class { cols = 80; rows = 24; open(element) {element.addEventListener('terminal-input',event=>this.input?.(event.detail));element.addEventListener('terminal-selection',event=>{this.selection=event.detail;this.selectionChanged?.();});} onSelectionChange(callback){this.selectionChanged=callback;} getSelection(){return this.selection||'';} paste(text){records.push(['terminal:paste-input',text]);this.input?.(text);} writeln() {} write() {} loadAddon() {} onData(callback) {this.input=callback;} dispose() {records.push(['terminal:dispose']);} focus() {} };
+  w.Terminal = class { constructor(options){this.options=options;terminals.push(this);} cols = 80; rows = 24; open(element) {element.addEventListener('terminal-input',event=>this.input?.(event.detail));element.addEventListener('terminal-selection',event=>{this.selection=event.detail;this.selectionChanged?.();});} onSelectionChange(callback){this.selectionChanged=callback;} getSelection(){return this.selection||'';} paste(text){records.push(['terminal:paste-input',text]);this.input?.(text);} writeln() {} write() {} loadAddon() {} onData(callback) {this.input=callback;} dispose() {records.push(['terminal:dispose']);} focus() {} };
   w.FitAddon = { FitAddon: class { fit() {} } };
   w.api = { platform, on: (name, callback) => { listeners[name] = callback; return () => {}; }, call: async (name, payload = {}) => {
     records.push([name, payload]);
@@ -35,11 +35,12 @@ async function setup({ deferConnect = false, platform = 'darwin', initialHosts =
     if(name==='forward:stop'){forwards.delete(payload.ruleId);listeners['forward:status']?.({ruleId:payload.ruleId,status:'stopped'});return {};}
     throw Error('Unexpected API method: ' + name);
   } };
+  w.eval(fs.readFileSync(path.join(__dirname, '../src/terminal-themes.js'), 'utf8'));
   w.eval(fs.readFileSync(path.join(__dirname, '../src/renderer.js'), 'utf8'));
   await tick();
   const submit = id => w.document.getElementById(id).dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
   const click = id => w.document.getElementById(id).click();
-  return { dom, w, records, listeners, submit, click, getData: () => data, getClipboard:()=>clipboardText, setClipboard:text=>clipboardText=text, deferPaste:()=>{finishPaste={};return text=>finishPaste.resolve({text});}, completeConnect: () => resolveConnect({ id: 'session-1' }) };
+  return { dom, w, records, listeners, terminals, submit, click, getData: () => data, getClipboard:()=>clipboardText, setClipboard:text=>clipboardText=text, deferPaste:()=>{finishPaste={};return text=>finishPaste.resolve({text});}, completeConnect: () => resolveConnect({ id: 'session-1' }) };
 }
 uiTest('create vault confirms password and never writes unmatched password', async () => {
   const ui = await setup(); const { w, click, submit, records } = ui; const d = w.document;
@@ -266,4 +267,11 @@ uiTest('clipboard settings persist, apply to existing terminals, and leave tab D
 });
 uiTest('pending clipboard paste is discarded after vault lock or session close',async()=>{
  for(const close of ['lock','close']){const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');await openHost(ui,'Alpha');const content=ui.w.document.querySelector('.terminal-content');const finish=ui.deferPaste();content.dispatchEvent(new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2}));await tick();if(close==='lock')ui.click('terminal-lock');else ui.listeners['ssh:closed']({id:'session-1'});await tick();finish('must not be sent');await tick();assert.equal(ui.records.some(([name])=>name==='terminal:paste-input'),false);ui.dom.window.close();}
+});
+
+uiTest('host themes update only matching open terminals and Default restores original colors',async()=>{
+ const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');await addHost(ui,'Beta');await openHost(ui,'Alpha');await openHost(ui,'Alpha');await openHost(ui,'Beta');const d=ui.w.document;assert.equal(ui.terminals[0].options.theme.background,'#0d131c');ui.click('back-library');const edit=()=>{const card=[...d.querySelectorAll('.card')].find(c=>c.querySelector('h3').textContent==='Alpha');[...card.querySelectorAll('button')].find(b=>b.textContent==='Edit').click();};edit();assert.equal(d.querySelectorAll('[data-terminal-theme]').length,5);d.querySelector('[data-terminal-theme="ember-dune"]').click();assert.equal(d.querySelector('.theme-preview').style.backgroundColor,'rgb(122, 37, 30)');ui.submit('editor-form');await tick();assert.equal(ui.getData().hosts[0].terminalTheme.preset,'ember-dune');assert.equal(ui.terminals[0].options.theme.background,'#7a251e');assert.equal(ui.terminals[1].options.theme.background,'#7a251e');assert.equal(ui.terminals[2].options.theme.background,'#0d131c');edit();assert.equal(d.querySelector('[data-terminal-theme="ember-dune"]').getAttribute('aria-pressed'),'true');d.querySelector('[data-terminal-theme="default"]').click();ui.submit('editor-form');await tick();assert.equal(ui.terminals[0].options.theme.background,'#0d131c');assert.equal(ui.terminals[0].options.theme.selectionForeground,undefined);assert.equal(ui.records.filter(([name])=>name==='ssh:close').length,0);ui.dom.window.close();
+});
+uiTest('custom theme color controls preview, validate, persist and initialize a new terminal',async()=>{
+ const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');const d=ui.w.document;[...d.querySelector('.card').querySelectorAll('button')].find(b=>b.textContent==='Edit').click();d.querySelector('[data-terminal-theme="custom"]').click();const change=(key,value)=>{const input=d.querySelector(`[data-theme-hex="${key}"]`);input.value=value;input.dispatchEvent(new ui.w.Event('input'));};change('background','bad');ui.submit('editor-form');await tick();assert.equal(d.getElementById('editor').open,true);assert.equal(ui.getData().hosts[0].terminalTheme.preset,'default');change('background','#112233');change('foreground','#ddeeff');change('cursor','#ffcc00');change('selectionBackground','#334455');change('selectionForeground','#ffffff');assert.equal(d.querySelector('.theme-preview').style.backgroundColor,'rgb(17, 34, 51)');ui.submit('editor-form');await tick();assert.equal(ui.getData().hosts[0].terminalTheme.colors.background,'#112233');await openHost(ui,'Alpha');assert.equal(ui.terminals[0].options.theme.foreground,'#ddeeff');assert.equal(ui.terminals[0].options.theme.cursor,'#ffcc00');assert.equal(ui.terminals[0].options.theme.selectionBackground,'#334455');assert.equal(ui.terminals[0].options.theme.selectionForeground,'#ffffff');ui.click('back-library');[...d.querySelector('.card').querySelectorAll('button')].find(b=>b.textContent==='Edit').click();assert.equal(d.querySelector('[data-theme-hex="background"]').value,'#112233');ui.dom.window.close();
 });

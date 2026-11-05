@@ -1,6 +1,7 @@
 'use strict';
 const crypto = require('node:crypto');
 const {resolveRoute}=require('./ssh-route.cjs');
+const {validate:validateTerminalTheme}=require('./terminal-themes.js');
 const {validateLockSettings}=require('./auto-lock.cjs');
 const { validateRule } = require('./forwarding.cjs');
 const fs = require('node:fs/promises');
@@ -26,7 +27,7 @@ function validate(data) {
   }
  }
  for (const h of data.hosts) if (typeof h.address !== 'string' || !h.address.trim() || typeof h.username !== 'string' || !Number.isInteger(Number(h.port)) || Number(h.port)<1 || Number(h.port)>65535) throw Error('Each host needs an address, username and valid port.');
- for(const h of normalized.hosts)resolveRoute(normalized,h.id);
+ for(const h of normalized.hosts){resolveRoute(normalized,h.id);validateTerminalTheme(h.terminalTheme);}
  for (const k of data.keys) if (typeof k.privateKey !== 'string') throw Error('Invalid private key.');
  for (const s of data.snippets) if (typeof s.command !== 'string') throw Error('Invalid snippet.');
  return normalized;

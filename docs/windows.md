@@ -1,4 +1,4 @@
-# LocalTerm 1.5.5 — Windows
+# LocalTerm 1.5.6 — Windows
 
 A LocalTerm helyi SSH-kliens. A hostokat, jelszavakat, privát kulcsokat, kulcsjelszavakat, ugróhostokat, snippeteket, porttovábbításokat és beállításokat egy szabadon elhelyezhető, jelszóval titkosított `.ltvault` fájlban tárolja. Nem szükséges hozzá LocalTerm-fiók.
 
@@ -10,8 +10,8 @@ A közös alkalmazásfelület macOS-en, mintahostokkal. A Windows README ugyanaz
 
 ## Indítás és frissítés
 
-- [LocalTerm-1.5.5-Windows-x64-Portable.exe](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe): önálló portable futtatható fájl. Nem telepítő; indításkor kibontja és futtatja az alkalmazást.
-- [LocalTerm-1.5.5-Windows-x64.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Windows-x64.zip): bontsd ki teljes egészében, majd indítsd a `LocalTerm.exe` fájlt. A mellette lévő fájlokat és mappákat hagyd a helyükön.
+- [LocalTerm-1.5.6-Windows-x64-Portable.exe](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Windows-x64-Portable.exe): önálló portable futtatható fájl. Nem telepítő; indításkor kibontja és futtatja az alkalmazást.
+- [LocalTerm-1.5.6-Windows-x64.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Windows-x64.zip): bontsd ki teljes egészében, majd indítsd a `LocalTerm.exe` fájlt. A mellette lévő fájlokat és mappákat hagyd a helyükön.
 
 Intel/AMD 64 bites Windowsra készült; külön Windows ARM-csomag nincs. Node.js vagy Electron telepítése nem szükséges. Frissítés előtt zárd be a régi alkalmazást. A saját vault külön fájl marad. A kiadás nincs digitálisan aláírva.
 
@@ -78,7 +78,7 @@ npm test
 npm start
 ```
 
-Az SSH-integrációs tesztek helyi TCP-portokat nyitnak. A tesztadatok szintetikusak. A `package-lock.json` rögzíti a függőségeket. A `src/` a teljes alkalmazásforrás, a `test/` az automatizált tesztek, a `releases/1.5.5/` a kész kiadás.
+Az SSH-integrációs tesztek helyi TCP-portokat nyitnak. A tesztadatok szintetikusak. A `package-lock.json` rögzíti a függőségeket. A `src/` a teljes alkalmazásforrás, a `test/` az automatizált tesztek, a `releases/1.5.6/` a kész kiadás.
 
 ## Korlátok és ellenőrzés
 
@@ -94,7 +94,7 @@ npm run build:win
 
 Windows x64 ZIP és portable EXE készül a `dist/` mappában. A kiadott csomag macOS-en, a Windows Electron-futtatókörnyezetével készült. Az opcionális natív SSH-gyorsító modulok kimaradnak a Windows-csomagból; a hordozható SSH-megvalósítás használatos.
 
-A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/SHA256SUMS.txt).
+A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.6/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/SHA256SUMS.txt).
 
 ## Licenc
 
@@ -102,7 +102,7 @@ Copyright © 2026 x0r3n. A jelenlegi LocalTerm-forráskód a **GNU General Publi
 
 A program használható, módosítható és továbbadható a GPL feltételei szerint. Továbbadáskor biztosítani kell a megfelelő forráskódhoz való hozzáférést és meg kell őrizni a szükséges jogi jelöléseket. A programra nincs garancia.
 
-A külső függőségek saját licencei és szerzői jogi jelölései érvényben maradnak. A korábban MIT alatt kiadott források és kész 1.5.4-es csomagok MIT szerinti jogosultságait ez a változás nem vonja vissza. Az 1.5.5-ös kiadás GPL-licencű csomagokból áll. A GPL és a szerzői jogi nyilatkozat az alkalmazáscsomagban is megtalálható. A pontos forrás a kész csomagok mellett, a `releases/1.5.5/LocalTerm-1.5.5-source.zip` fájlban is elérhető.
+A külső függőségek saját licencei és szerzői jogi jelölései érvényben maradnak. A korábban MIT alatt kiadott források és kész 1.5.4-es csomagok MIT szerinti jogosultságait ez a változás nem vonja vissza. Az 1.5.6-os kiadás GPL-licencű csomagokból áll. A GPL és a szerzői jogi nyilatkozat az alkalmazáscsomagban is megtalálható. A pontos forrás a kész csomagok mellett, a `releases/1.5.6/LocalTerm-1.5.6-source.zip` fájlban is elérhető.
 
 ## Külső futtatókörnyezet licencértesítői
 
@@ -115,3 +115,11 @@ A terminálban kijelölt szöveg azonnal a rendszer vágólapjára kerül. Jobb 
 A funkció alapból bekapcsolt. Kikapcsolás: **Vault settings → Terminal clipboard → Copy selection and paste on right-click**, majd **Save clipboard settings**. A választás a titkosított vaultban megmarad, és minden nyitott terminálra azonnal érvényes. A megszokott billentyűs másolás és beillesztés továbbra is használható.
 
 A beillesztés az xterm.js normál paste útvonalát használja, beleértve a távoli alkalmazás által bekapcsolt bracketed paste módot. Zárolt vaultba vagy közben bezárt terminálba függőben lévő beillesztés nem jut el. A vágólap a rendszer vágólapja, a rámásolt szöveget a vault zárolása nem törli.
+
+## Hostonkénti termináltémák (1.5.6)
+
+**Hosts → Edit → Terminal theme**: minden hosthoz külön téma menthető. Választható a **Default**, a vöröses **Ember Dune**, a zöldes **Emerald** és a világos **Paper**, továbbá a **Custom** mód. Minden meglévő és új host alapértelmezése a korábbi, változatlan LocalTerm-színvilág.
+
+Custom módban külön beállítható a háttér, a betűszín, a kurzor, a kijelölés háttere és a kijelölt szöveg színe. Színválasztó és hatjegyű hex mező is használható, élő előnézettel. A **Save changes** az adott hosttal együtt, a titkosított vaultba menti a témát. Az adott host már nyitott termináljai újracsatlakozás nélkül frissülnek, a többi host színei megmaradnak. A Default választás visszaállítja az eredeti színeket.
+
+Az 1.5.6 kiadásnál 71 automatizált teszt sikeres macOS-en, beleértve a témák validálását, a titkosított mentést, az importot és a nyitott terminálok frissítését. A témaelőnézetet és az egyéni színek élő alkalmazását natív Mac-felületen, szintetikus SSH-kapcsolaton is ellenőriztük.

@@ -14,7 +14,7 @@ function mergeVaults(current,incoming){
   const mapped={...host,keyId:host.keyId?(keyIds.get(host.keyId)||''):''};
   let existing=data.hosts.find(h=>h.sourceApp&&h.sourceApp===host.sourceApp&&h.sourceId&&h.sourceId===host.sourceId);
   if(!existing)existing=data.hosts.find(h=>!claimed.has(h.id)&&!h.sourceId&&endpoint(h)===endpoint(host)&&(h.label.trim().toLowerCase()===host.label.trim().toLowerCase()||frequency.get(endpoint(host))===1));
-  if(existing){claimed.add(existing.id);for(const key of ['password','keyId','group','notes'])if(!existing[key]&&mapped[key])existing[key]=mapped[key];for(const key of ['sourceApp','sourceId','sourceMetadata','requiresMigrationSetup','migrationBlockers'])if(mapped[key]!==undefined)existing[key]=mapped[key];summary.hostsMerged++;}
+  if(existing){claimed.add(existing.id);for(const key of ['password','keyId','group','notes','terminalTheme'])if(!existing[key]&&mapped[key])existing[key]=mapped[key];for(const key of ['sourceApp','sourceId','sourceMetadata','requiresMigrationSetup','migrationBlockers'])if(mapped[key]!==undefined)existing[key]=mapped[key];summary.hostsMerged++;}
   else{existing={...mapped,id:fresh(host.id)};data.hosts.push(existing);claimed.add(existing.id);summary.hostsAdded++;}
   if((existing.jumpHostIds===undefined&&existing.jumpHostId===undefined)||!current.hosts.some(h=>h.id===existing.id))jumpMappings.push([existing,host]);hostIds.set(host.id,existing.id);
  }

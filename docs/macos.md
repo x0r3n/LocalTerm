@@ -1,4 +1,4 @@
-# LocalTerm 1.5.5 — macOS
+# LocalTerm 1.5.6 — macOS
 
 A LocalTerm helyi SSH-kliens. A hostokat, jelszavakat, privát kulcsokat, kulcsjelszavakat, ugróhostokat, snippeteket, porttovábbításokat és beállításokat egy szabadon elhelyezhető, jelszóval titkosított `.ltvault` fájlban tárolja. Nem szükséges hozzá LocalTerm-fiók.
 
@@ -10,7 +10,7 @@ A közös alkalmazásfelület macOS-en, mintahostokkal. A Windows README ugyanaz
 
 ## Telepítés és frissítés
 
-A [LocalTerm-1.5.5-Mac-AppleSilicon.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip) Apple Silicon (M-sorozatú) Macre készült. Bontsd ki, majd másold a `LocalTerm.app` alkalmazást az Applications mappába. Frissítés előtt lépj ki a régi példányból, majd cseréld le az alkalmazást. A saját vaultfájlt ne cseréld le. Intel Macre ez a build nem megfelelő.
+A [LocalTerm-1.5.6-Mac-AppleSilicon.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Mac-AppleSilicon.zip) Apple Silicon (M-sorozatú) Macre készült. Bontsd ki, majd másold a `LocalTerm.app` alkalmazást az Applications mappába. Frissítés előtt lépj ki a régi példányból, majd cseréld le az alkalmazást. A saját vaultfájlt ne cseréld le. Intel Macre ez a build nem megfelelő.
 
 A build nincs digitálisan aláírva vagy notarizálva. Node.js vagy Electron külön telepítése nem szükséges a futtatáshoz.
 
@@ -91,7 +91,7 @@ npm test
 npm start
 ```
 
-Az SSH-integrációs tesztek helyi TCP-portokat nyitnak. A tesztadatok szintetikusak. A `package-lock.json` rögzíti a függőségeket. A `src/` a teljes alkalmazásforrás, a `test/` az automatizált tesztek, a `releases/1.5.5/` a kész kiadás.
+Az SSH-integrációs tesztek helyi TCP-portokat nyitnak. A tesztadatok szintetikusak. A `package-lock.json` rögzíti a függőségeket. A `src/` a teljes alkalmazásforrás, a `test/` az automatizált tesztek, a `releases/1.5.6/` a kész kiadás.
 
 ## Korlátok és ellenőrzés
 
@@ -109,7 +109,7 @@ npm run build
 
 Eredmény: `dist/mac-arm64/LocalTerm.app`. A forrás mindkét asztali platformot támogatja; a macOS- és Windows-csomagok egy közös repóban találhatók.
 
-A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.5/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.5/SHA256SUMS.txt).
+A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.6/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/SHA256SUMS.txt).
 
 ## Licenc
 
@@ -117,7 +117,7 @@ Copyright © 2026 x0r3n. A jelenlegi LocalTerm-forráskód a **GNU General Publi
 
 A program használható, módosítható és továbbadható a GPL feltételei szerint. Továbbadáskor biztosítani kell a megfelelő forráskódhoz való hozzáférést és meg kell őrizni a szükséges jogi jelöléseket. A programra nincs garancia.
 
-A külső függőségek saját licencei és szerzői jogi jelölései érvényben maradnak. A korábban MIT alatt kiadott források és kész 1.5.4-es csomagok MIT szerinti jogosultságait ez a változás nem vonja vissza. Az 1.5.5-ös kiadás GPL-licencű csomagokból áll. A GPL és a szerzői jogi nyilatkozat az alkalmazáscsomagban is megtalálható. A pontos forrás a kész csomagok mellett, a `releases/1.5.5/LocalTerm-1.5.5-source.zip` fájlban is elérhető.
+A külső függőségek saját licencei és szerzői jogi jelölései érvényben maradnak. A korábban MIT alatt kiadott források és kész 1.5.4-es csomagok MIT szerinti jogosultságait ez a változás nem vonja vissza. Az 1.5.6-os kiadás GPL-licencű csomagokból áll. A GPL és a szerzői jogi nyilatkozat az alkalmazáscsomagban is megtalálható. A pontos forrás a kész csomagok mellett, a `releases/1.5.6/LocalTerm-1.5.6-source.zip` fájlban is elérhető.
 
 ## Külső futtatókörnyezet licencértesítői
 
@@ -130,3 +130,11 @@ A terminálban kijelölt szöveg azonnal a rendszer vágólapjára kerül. Jobb 
 A funkció alapból bekapcsolt. Kikapcsolás: **Vault settings → Terminal clipboard → Copy selection and paste on right-click**, majd **Save clipboard settings**. A választás a titkosított vaultban megmarad, és minden nyitott terminálra azonnal érvényes. A megszokott billentyűs másolás és beillesztés továbbra is használható.
 
 A beillesztés az xterm.js normál paste útvonalát használja, beleértve a távoli alkalmazás által bekapcsolt bracketed paste módot. Zárolt vaultba vagy közben bezárt terminálba függőben lévő beillesztés nem jut el. A vágólap a rendszer vágólapja, a rámásolt szöveget a vault zárolása nem törli.
+
+## Hostonkénti termináltémák (1.5.6)
+
+**Hosts → Edit → Terminal theme**: minden hosthoz külön téma menthető. Választható a **Default**, a vöröses **Ember Dune**, a zöldes **Emerald** és a világos **Paper**, továbbá a **Custom** mód. Minden meglévő és új host alapértelmezése a korábbi, változatlan LocalTerm-színvilág.
+
+Custom módban külön beállítható a háttér, a betűszín, a kurzor, a kijelölés háttere és a kijelölt szöveg színe. Színválasztó és hatjegyű hex mező is használható, élő előnézettel. A **Save changes** az adott hosttal együtt, a titkosított vaultba menti a témát. Az adott host már nyitott termináljai újracsatlakozás nélkül frissülnek, a többi host színei megmaradnak. A Default választás visszaállítja az eredeti színeket.
+
+Az 1.5.6 kiadásnál 71 automatizált teszt sikeres macOS-en, beleértve a témák validálását, a titkosított mentést, az importot és a nyitott terminálok frissítését. A témaelőnézetet és az egyéni színek élő alkalmazását natív Mac-felületen, szintetikus SSH-kapcsolaton is ellenőriztük.

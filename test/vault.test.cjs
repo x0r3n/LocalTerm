@@ -9,9 +9,10 @@ async function fixture(t){const dir=await fs.mkdtemp(path.join(os.tmpdir(),'loca
 test('hosts, passwords and key contents survive encrypted portable round trip',async t=>{
  const file=await fixture(t),a=new Vault();await a.create(file,password);
  const data=a.state().data;data.hosts.push({id:'h',label:'Production',address:'secret.example.test',port:22,username:'alice',password:'secret-login',keyId:'k',jumpHostIds:['jump']},{id:'jump',label:'Bastion',address:'secret-jump.test',port:22,username:'bastion',password:'jump-secret'});data.keys.push({id:'k',label:'Identity',privateKey:'PRIVATE KEY CONTENT',passphrase:'key-passphrase'});
+ data.hosts[0].terminalTheme={preset:'custom',colors:{background:'#7a251e',foreground:'#e7d6ac',cursor:'#ffffff',selectionBackground:'#a24b3d'}};
  data.settings.terminalClipboard={enabled:false};
  data.settings.autoLock={enabled:false,idleMinutes:45,onScreenLock:false,onSuspend:false};
- await a.save(data);const bytes=await fs.readFile(file,'utf8');for(const value of ['secret.example.test','secret-login','PRIVATE KEY CONTENT','alice','key-passphrase','secret-jump.test','jump-secret','jumpHostIds','autoLock'])assert(!bytes.includes(value));
+ await a.save(data);const bytes=await fs.readFile(file,'utf8');for(const value of ['secret.example.test','secret-login','PRIVATE KEY CONTENT','alice','key-passphrase','secret-jump.test','jump-secret','jumpHostIds','autoLock','terminalTheme','#7a251e'])assert(!bytes.includes(value));
  const copy=path.join(path.dirname(file),'other.ltvault');await a.copy(copy);a.lock();assert.equal(a.key,null);assert.equal(a.state().data,undefined);
  const b=new Vault();await b.open(copy,password);assert.deepEqual(b.data,data);assert.equal((await fs.stat(file)).mode&0o777,0o600);
 });

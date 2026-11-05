@@ -1,4 +1,4 @@
-29fd7e6e4e6ef697f9c543aa54c41d243175e778a1e5d149b55e621029cf55d3  builds/macos/1.5.5/LocalTerm-1.5.5-Mac-AppleSilicon.zip
-faf8d13a4cfbb1b5cc154dd0a6e3b3036888f14bf18eb64ae46f4606b501913a  builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64-Portable.exe
-1eaa2caae05d1217e62de6361214b5513242a431d443f0444504b82836ff8353  builds/windows/1.5.5/LocalTerm-1.5.5-Windows-x64.zip
-5ad801bea8b81f35ed1826e5a37921a7b2cb325699539804660b0b1b14c825dc  releases/1.5.5/LocalTerm-1.5.5-source.zip
+a91263bf16f0c3f8edebafc9547b7b8220f4d6be0b36bd0633934ef6f6a80478  builds/macos/1.5.6/LocalTerm-1.5.6-Mac-AppleSilicon.zip
+fc0330536ae2b29a63188eda1211a56a19cdf1b837d0746d21d31924093e0960  builds/windows/1.5.6/LocalTerm-1.5.6-Windows-x64-Portable.exe
+4725a1f34ea67303342490569d4fd493009fe5699a214e025ce7f682add72573  builds/windows/1.5.6/LocalTerm-1.5.6-Windows-x64.zip
+96c7c211224d6c21b90f02561e3a87a86d8221dea48365ebf0acb7387663fc6d  releases/1.5.6/LocalTerm-1.5.6-source.zip
