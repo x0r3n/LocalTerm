@@ -1,0 +1,26 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');const fs=require('node:fs'),fsp=require('node:fs/promises'),path=require('node:path'),os=require('node:os');const {generateKeyPairSync}=require('node:crypto');const {Server,Client,utils}=require('ssh2');const {FileBrowser}=require('../src/file-browser.cjs');
+test('two-pane file operations carry real SFTP uploads, downloads, conflicts and deletion',async t=>{
+ const dir=await fsp.mkdtemp(path.join(os.tmpdir(),'lt-sftp-'));const local=path.join(dir,'local'),remote=path.join(dir,'remote');await fsp.mkdir(local);await fsp.mkdir(remote);t.after(()=>fsp.rm(dir,{recursive:true,force:true}));for(const n of ['a.txt','b.txt'])await fsp.writeFile(path.join(local,n),'payload '+n);
+ const hostKeys=[generateKeyPairSync('rsa',{modulusLength:2048}).privateKey.export({type:'pkcs1',format:'pem'})];
+ const sockets=new Set();const server=new Server({hostKeys},c=>{sockets.add(c);c.on('error',()=>{});c.on('close',()=>sockets.delete(c));c.on('authentication',ctx=>ctx.method==='password'?ctx.accept():ctx.reject());c.on('ready',()=>c.on('session',accept=>accept().on('sftp',accept=>{const s=accept(),handles=new Map();let sequence=0;const status=(id,e)=>s.status(id,e?(e.code==='ENOENT'?2:4):0);const disk=p=>path.join(remote,path.posix.basename(p));const attrs=st=>({mode:st.mode,size:st.size,uid:st.uid,gid:st.gid,atime:Math.floor(st.atimeMs/1000),mtime:Math.floor(st.mtimeMs/1000)});const handle=v=>{const b=Buffer.from(String(++sequence));handles.set(b.toString(),v);return b;};
+ s.on('REALPATH',(id,p)=>s.name(id,[{filename:'/remote',longname:'/remote',attrs:{}}]));
+ s.on('OPENDIR',(id,p)=>s.handle(id,handle({dir:true,sent:false})));
+ s.on('READDIR',async(id,h)=>{const v=handles.get(h.toString());if(v.sent)return s.status(id,1);v.sent=true;const files=await fsp.readdir(remote);s.name(id,await Promise.all(files.map(async n=>({filename:n,longname:n,attrs:attrs(await fsp.lstat(path.join(remote,n)))}))));});
+ for(const method of ['STAT','LSTAT'])s.on(method,(id,p)=>fs.lstat(disk(p),(e,st)=>e?status(id,e):s.attrs(id,attrs(st))));
+ s.on('OPEN',(id,p,flags,a)=>fs.open(disk(p),utils.sftp.flagsToString(flags),0o600,(e,fd)=>e?status(id,e):s.handle(id,handle({fd}))));
+ s.on('WRITE',(id,h,offset,data)=>fs.write(handles.get(h.toString()).fd,data,0,data.length,offset,e=>status(id,e)));
+ s.on('READ',(id,h,offset,len)=>{const b=Buffer.alloc(len);fs.read(handles.get(h.toString()).fd,b,0,len,offset,(e,n)=>e?status(id,e):n?s.data(id,b.subarray(0,n)):s.status(id,1));});
+ s.on('CLOSE',(id,h)=>{const v=handles.get(h.toString());handles.delete(h.toString());if(v?.fd!==undefined)fs.close(v.fd,e=>status(id,e));else status(id);});
+ s.on('RENAME',(id,a,b)=>fs.rename(disk(a),disk(b),e=>status(id,e)));
+ s.on('EXTENDED',(id,name,a,b)=>{if(name==='posix-rename@openssh.com')fs.rename(disk(a),disk(b),e=>status(id,e));else s.status(id,8);});
+ s.on('REMOVE',(id,p)=>fs.unlink(disk(p),e=>status(id,e)));s.on('RMDIR',(id,p)=>fs.rmdir(disk(p),e=>status(id,e)));
+ })));});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>{for(const c of sockets)c.end();server.close();});const client=new Client();await new Promise((resolve,reject)=>client.on('ready',resolve).on('error',reject).connect({host:'127.0.0.1',port:server.address().port,username:'qa',password:'synthetic'}));t.after(()=>client.destroy());
+ let conflicts=0;const browser=new FileBrowser({check:()=>{},getSftp:()=>new Promise((resolve,reject)=>client.sftp((e,v)=>e?reject(e):resolve(v))),decide:async()=>{conflicts++;return {action:'rename',all:true};},confirmDelete:async()=>true});
+ const upload=await browser.execute({op:'transfer',direction:'upload',from:local,to:'/remote',names:['a.txt','b.txt']});assert.deepEqual(upload.results.map(x=>x.status),['copied','copied']);assert.equal(await fsp.readFile(path.join(remote,'a.txt'),'utf8'),'payload a.txt');
+ const listing=await browser.execute({op:'list',side:'remote',path:'.'});assert.equal(listing.path,'/remote');assert.equal(listing.entries.length,2);
+ const download=await browser.execute({op:'transfer',direction:'download',from:'/remote',to:local,names:['a.txt','b.txt']});assert.equal(conflicts,1);assert.deepEqual(download.results.map(x=>x.status),['copied','copied']);assert.equal(await fsp.readFile(path.join(local,'a (1).txt'),'utf8'),'payload a.txt');
+ browser.decide=async()=>({action:'overwrite',all:true});await fsp.writeFile(path.join(local,'a.txt'),'replacement');const replaced=await browser.execute({op:'transfer',direction:'upload',from:local,to:'/remote',names:['a.txt']});assert.equal(replaced.results[0].status,'copied');assert.equal(await fsp.readFile(path.join(remote,'a.txt'),'utf8'),'replacement');
+ const removed=await browser.execute({op:'delete',side:'remote',path:'/remote',names:['a.txt','b.txt']});assert.deepEqual(removed.results.map(x=>x.status),['deleted','deleted']);assert.deepEqual(await fsp.readdir(remote),[]);
+});

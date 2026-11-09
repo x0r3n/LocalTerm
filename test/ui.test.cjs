@@ -20,10 +20,12 @@ async function setup({ deferConnect = false, platform = 'darwin', initialHosts =
   w.ResizeObserver = class { observe() {} disconnect() {} };
   w.Terminal = class { constructor(options){this.options=options;terminals.push(this);} cols = 80; rows = 24; open(element) {element.addEventListener('terminal-input',event=>this.input?.(event.detail));element.addEventListener('terminal-selection',event=>{this.selection=event.detail;this.selectionChanged?.();});} onSelectionChange(callback){this.selectionChanged=callback;} getSelection(){return this.selection||'';} paste(text){records.push(['terminal:paste-input',text]);this.input?.(text);} writeln() {} write() {} loadAddon() {} onData(callback) {this.input=callback;} dispose() {records.push(['terminal:dispose']);} focus() {} };
   w.FitAddon = { FitAddon: class { fit() {} } };
-  w.api = { platform, on: (name, callback) => { listeners[name] = callback; return () => {}; }, call: async (name, payload = {}) => {
+  w.api = { platform, on: (name, callback) => { const previous=listeners[name];listeners[name]=payload=>{previous?.(payload);callback(payload);}; return () => {}; }, call: async (name, payload = {}) => {
     records.push([name, payload]);
     if (name === 'terminal:copy'){clipboardText=payload.text;return;}
     if (name === 'terminal:paste')return finishPaste?new Promise(resolve=>finishPaste.resolve=resolve):{text:clipboardText};
+    if(name==='files:connect')return {id:'sftp-test'};
+    if(name==='files:operate'){if(payload.op==='list')return {path:payload.path||'/local',parent:'/',entries:[{name:'example.txt',type:'file',size:4,mtime:0}]};return {results:payload.names.map(name=>({name,status:'copied'}))};}
     if (name === 'vault:state') return snapshot();
     if (name === 'vault:create') { locked = false; return snapshot(); }
     if (name === 'vault:save') { data = structuredClone(payload.data); return snapshot(); }
@@ -36,7 +38,7 @@ async function setup({ deferConnect = false, platform = 'darwin', initialHosts =
     throw Error('Unexpected API method: ' + name);
   } };
   w.eval(fs.readFileSync(path.join(__dirname, '../src/terminal-themes.js'), 'utf8'));
-  w.eval(fs.readFileSync(path.join(__dirname, '../src/renderer.js'), 'utf8'));
+  w.eval(fs.readFileSync(path.join(__dirname, '../src/renderer.js'), 'utf8')+'\n'+fs.readFileSync(path.join(__dirname, '../src/file-browser.js'), 'utf8'));
   await tick();
   const submit = id => w.document.getElementById(id).dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
   const click = id => w.document.getElementById(id).click();
@@ -275,3 +277,5 @@ uiTest('host themes update only matching open terminals and Default restores ori
 uiTest('custom theme color controls preview, validate, persist and initialize a new terminal',async()=>{
  const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');const d=ui.w.document;[...d.querySelector('.card').querySelectorAll('button')].find(b=>b.textContent==='Edit').click();d.querySelector('[data-terminal-theme="custom"]').click();const change=(key,value)=>{const input=d.querySelector(`[data-theme-hex="${key}"]`);input.value=value;input.dispatchEvent(new ui.w.Event('input'));};change('background','bad');ui.submit('editor-form');await tick();assert.equal(d.getElementById('editor').open,true);assert.equal(ui.getData().hosts[0].terminalTheme.preset,'default');change('background','#112233');change('foreground','#ddeeff');change('cursor','#ffcc00');change('selectionBackground','#334455');change('selectionForeground','#ffffff');assert.equal(d.querySelector('.theme-preview').style.backgroundColor,'rgb(17, 34, 51)');ui.submit('editor-form');await tick();assert.equal(ui.getData().hosts[0].terminalTheme.colors.background,'#112233');await openHost(ui,'Alpha');assert.equal(ui.terminals[0].options.theme.foreground,'#ddeeff');assert.equal(ui.terminals[0].options.theme.cursor,'#ffcc00');assert.equal(ui.terminals[0].options.theme.selectionBackground,'#334455');assert.equal(ui.terminals[0].options.theme.selectionForeground,'#ffffff');ui.click('back-library');[...d.querySelector('.card').querySelectorAll('button')].find(b=>b.textContent==='Edit').click();assert.equal(d.querySelector('[data-theme-hex="background"]').value,'#112233');ui.dom.window.close();
 });
+
+uiTest('two-pane SFTP selects a host, copies a batch and clears on vault lock',async()=>{const ui=await setup({initialHosts:[{id:'h',label:'Server',username:'qa',address:'test'}]});await unlock(ui);ui.click('sftp-browser-open');await tick();const d=ui.w.document;assert.equal(d.getElementById('sftp-browser').hidden,false);const panels=d.querySelectorAll('.sftp-panel');assert.equal(panels.length,2);[...panels[1].querySelectorAll('button')].find(b=>b.textContent==='Connect').click();await tick();const check=panels[0].querySelector('input[type=checkbox]');check.checked=true;check.dispatchEvent(new ui.w.Event('change'));[...panels[0].querySelectorAll('button')].find(b=>b.textContent==='Upload →').click();await tick();assert.ok(ui.records.some(([method,p])=>method==='files:operate'&&p.op==='transfer'&&p.direction==='upload'&&p.names[0]==='example.txt'));ui.click('lock');await tick();assert.equal(d.getElementById('sftp-browser').hidden,true);assert.equal(d.querySelectorAll('.sftp-table tbody tr').length,0);ui.dom.window.close();});

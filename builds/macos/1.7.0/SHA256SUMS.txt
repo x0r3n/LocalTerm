@@ -1,0 +1,1 @@
+d3c1cb74fcccc7f224d6f862b3cb0bd2737c722cee5b3dad6d79d7529077020b  LocalTerm-1.7.0-Mac-AppleSilicon.zip

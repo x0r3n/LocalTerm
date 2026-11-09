@@ -1,4 +1,4 @@
-# LocalTerm 1.6.0
+# LocalTerm 1.7.0
 
 Helyi SSH-kliens macOS-re és Windowsra, hordozható, jelszóval titkosított vaulttal. A közös forrás ebben a repóban található; a kész alkalmazások külön platformmappákban vannak.
 
@@ -8,10 +8,10 @@ Helyi SSH-kliens macOS-re és Windowsra, hordozható, jelszóval titkosított va
 
 | Platform | Kész csomag |
 |---|---|
-| macOS / Apple Silicon | [Mac ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Mac-AppleSilicon.zip) |
-| Windows / Intel–AMD x64 | [Portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Windows-x64-Portable.exe) · [Teljes ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Windows-x64.zip) |
+| macOS / Apple Silicon | [Mac ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Mac-AppleSilicon.zip) |
+| Windows / Intel–AMD x64 | [Portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Windows-x64-Portable.exe) · [Teljes ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Windows-x64.zip) |
 
-A kész alkalmazásokat a [GitHub Release v1.5.6](https://github.com/x0r3n/LocalTerm/releases/tag/v1.5.6) mellékleteiből töltheted le, Git és Git LFS telepítése nélkül. Node.js vagy Electron külön telepítése sem szükséges. A csatolt fájlok ellenőrzőösszegei: [SHA256SUMS.txt](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/SHA256SUMS.txt).
+A kész alkalmazásokat a [GitHub Release v1.7.0](https://github.com/x0r3n/LocalTerm/releases/tag/v1.7.0) mellékleteiből töltheted le, Git és Git LFS telepítése nélkül. Node.js vagy Electron külön telepítése sem szükséges. A csatolt fájlok ellenőrzőösszegei: [SHA256SUMS.txt](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/SHA256SUMS.txt).
 
 Telepítés, macOS-karanténjelölés kezelése és részletes használat: [macOS útmutató](docs/macos.md) · [Windows útmutató](docs/windows.md).
 
@@ -33,9 +33,9 @@ src/                       Közös alkalmazásforrás
 test/                      Automatizált tesztek
 docs/macos.md              Mac telepítés és használat
 docs/windows.md            Windows telepítés és használat
-builds/macos/1.5.6/         Mac build (Git LFS)
-builds/windows/1.5.6/       Windows buildek (Git LFS)
-releases/1.5.6/             Teljes forrásarchívum
+builds/macos/1.7.0/         Mac build (Git LFS)
+builds/windows/1.7.0/       Windows buildek (Git LFS)
+releases/1.7.0/             Teljes forrásarchívum
 ```
 
 A nagy buildfájlok Git LFS-ben vannak. Klónozáshoz telepítsd a [Git LFS-t](https://git-lfs.com/), majd:
@@ -47,7 +47,7 @@ cd LocalTerm
 git lfs pull
 ```
 
-A GitHub automatikus **Download ZIP** forrásletöltésében a buildek helyett LFS-hivatkozások lehetnek. A kész alkalmazást a fenti platformlinkről, a teljes forrást a [külön forráscsomagból](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-source.zip) töltsd le.
+A GitHub automatikus **Download ZIP** forrásletöltésében a buildek helyett LFS-hivatkozások lehetnek. A kész alkalmazást a fenti platformlinkről, a teljes forrást a [külön forráscsomagból](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-source.zip) töltsd le.
 
 ## Fejlesztés és build
 
@@ -84,3 +84,13 @@ After the first vault unlock of the day, LocalTerm checks the latest stable rele
 When an update is available, choose **Update now** or **Later**. Updates are never installed automatically. LocalTerm downloads the matching macOS Apple Silicon ZIP or Windows x64 portable executable and verifies its size and SHA-256 digest against GitHub release metadata. It closes SSH connections, locks the vault, replaces the app, and restarts. The previous app is retained beside the installation with a `.previous-<timestamp>` suffix. The app must be installed in a writable location. The vault file is not moved.
 
 Publish future releases with the existing asset names: `LocalTerm-VERSION-Mac-AppleSilicon.zip` containing LocalTerm.app and `LocalTerm-VERSION-Windows-x64-Portable.exe`. The GitHub asset must include its SHA-256 digest. Draft and prerelease versions are ignored. A first manual installation of 1.6.0 is required to enable updates from older versions.
+
+## Two-pane SFTP (1.7.0)
+
+Open **SFTP** in the sidebar after unlocking the vault. The left panel browses your local filesystem (use **Choose folder…** to select another folder or Windows drive). The right panel has a searchable host selector. **Connect** opens an independent SFTP connection using the saved host credentials, jump hosts and fingerprint verification. Existing terminal connections remain available.
+
+Double-click a folder to open it; use the path field, Up or Refresh to navigate. Select multiple files with checkboxes or **Select all** (applies to the filtered list). **Upload →** copies local files to the remote directory; **← Download** copies remote files to the local directory. Each batch reports copied, skipped and failed files. On a name conflict choose **Overwrite**, **Rename (keep both)** (adds a numbered suffix), **Skip**, or **Cancel remaining**. The checkbox applies a decision to all remaining conflicts in that batch. Transfers use temporary files before final replacement.
+
+**Delete** asks for confirmation, then permanently deletes selected files or empty folders on the chosen side. Nonempty folders are not recursively deleted. Folder browsing is supported; copying currently supports regular files, not whole folders or symbolic links. Vault locking closes the SFTP connection and clears both panes.
+
+Validation: 81 automated tests passed on macOS, including real local SFTP multi-file upload/download, conflict handling, replacement and deletion, plus UI selection and clearing on lock. Native Windows runtime testing remains outstanding.

@@ -1,0 +1,1 @@
+d9726c6cf3852b215fb0c312ebefe16c354272d961074865fdd4f14ac0364ae8  LocalTerm-1.7.0-source.zip

@@ -1,5 +1,6 @@
 'use strict';
 const {Updates}=require('./updates.cjs');
+const {FileBrowser}=require('./file-browser.cjs');
 const {app,BrowserWindow,ipcMain,dialog,powerMonitor,session,clipboard}=require('electron');
 const {openRoute}=require('./ssh-route.cjs');
 const {Vault}=require('./vault.cjs');
@@ -13,7 +14,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {StringDecoder}=require('node:string_decoder');
 const vault=new Vault(),connections=new Map();
-let updates;
+let updates,fileBusy=false;
 let win, pendingPath, preferences, queue=Promise.resolve(), generation=0;
 const serial=fn=>{const job=queue.then(fn);queue=job.catch(()=>{});return job;};
 const autoLock=new AutoLock({getVault:()=>vault,lock:()=>lock(),serial});
@@ -57,6 +58,9 @@ async function sftp(id){const s=conn(id);return new Promise((resolve,reject)=>s.
 const forwards=new ForwardManager({openSSH:async hostId=>{const {id}=await connect({hostId,terminal:false});const s=conn(id);return {client:s.client,close:()=>s.close()};},emit:status=>emit('forward:status',status)});
 const connectionHosts=hosts=>hosts.map(({terminalTheme,...record})=>record);
 const handlers={
+ 'files:chooseLocal':async()=>{unlocked();const r=await dialog.showOpenDialog(win,{title:'Choose local folder',properties:['openDirectory']});return r.canceled?null:r.filePaths[0];},
+ 'files:connect':p=>connect({hostId:p.hostId,terminal:false}),
+ 'files:operate':async p=>{unlocked();if(fileBusy)throw Error('Wait for the current file operation.');fileBusy=true;const token=generation;try{return await new FileBrowser({getSftp:sftp,check:()=>{unlocked();if(generation!==token)throw Error('Vault changed or locked.');},decide:async name=>{const r=await dialog.showMessageBox(win,{type:'question',message:'A file with this name already exists',detail:name,buttons:['Overwrite','Rename (keep both)','Skip','Cancel remaining'],defaultId:2,cancelId:3,checkboxLabel:'Apply to all remaining conflicts',checkboxChecked:false});return {action:['overwrite','rename','skip','cancel'][r.response],all:r.checkboxChecked};},confirmDelete:async(names,dir,side)=>(await dialog.showMessageBox(win,{type:'warning',message:`Permanently delete ${names.length} selected item(s)?`,detail:`${side==='remote'?'Remote':'Local'}: ${dir}\n${names.slice(0,12).join('\n')}\nFiles are permanently deleted. Only empty folders can be deleted.`,buttons:['Cancel','Delete'],defaultId:0,cancelId:0})).response===1,progress:(done,total)=>emit('files:progress',{done,total})}).execute(p);}finally{fileBusy=false;}},
  'update:check':p=>{unlocked();return updates.check(p.manual===true);},
  'vault:state':()=>vaultState(),
  'app:activity':()=>{autoLock.activity();},
