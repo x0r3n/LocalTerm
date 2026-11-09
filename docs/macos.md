@@ -1,89 +1,64 @@
-# LocalTerm 1.5.6 — macOS
+# LocalTerm 1.7.0 — macOS
 
-A LocalTerm helyi SSH-kliens. A hostokat, jelszavakat, privát kulcsokat, kulcsjelszavakat, ugróhostokat, snippeteket, porttovábbításokat és beállításokat egy szabadon elhelyezhető, jelszóval titkosított `.ltvault` fájlban tárolja. Nem szükséges hozzá LocalTerm-fiók.
+![LocalTerm hosts and groups](images/localterm-hosts.jpg)
 
-## Képernyőkép
+## Installation
 
-![LocalTerm főnézet — hostok, kereső és csoportok](images/localterm-hosts.jpg)
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is unsigned and not notarized. Node.js and Electron are not needed to run it.
 
-A közös alkalmazásfelület macOS-en, mintahostokkal. A Windows README ugyanazt a képernyőképet használja.
-
-## Telepítés és frissítés
-
-A [LocalTerm-1.5.6-Mac-AppleSilicon.zip](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/LocalTerm-1.5.6-Mac-AppleSilicon.zip) Apple Silicon (M-sorozatú) Macre készült. Bontsd ki, majd másold a `LocalTerm.app` alkalmazást az Applications mappába. Frissítés előtt lépj ki a régi példányból, majd cseréld le az alkalmazást. A saját vaultfájlt ne cseréld le. Intel Macre ez a build nem megfelelő.
-
-A build nincs digitálisan aláírva vagy notarizálva. Node.js vagy Electron külön telepítése nem szükséges a futtatáshoz.
-
-### Ha a macOS blokkolja az indítást
-
-Webes letöltés vagy AirDrop után a macOS karanténjelöléssel láthatja el az alkalmazást. Mivel a jelenlegi kiadás nincs Developer ID tanúsítvánnyal aláírva és notarizálva, az első indítás blokkolva lehet. Ez egy új verzió telepítése után ismét előfordulhat.
-
-Miután kibontottad a ZIP-et és az alkalmazást az Applications mappába másoltad, nyisd meg a Terminal alkalmazást, és futtasd:
+If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
 ```sh
 xattr -dr com.apple.quarantine "/Applications/LocalTerm.app"
 ```
 
-Ha más mappában van az alkalmazás, az idézőjelek közötti útvonalat cseréld a `LocalTerm.app` tényleges elérési útjára. Ezután indítsd el újra az alkalmazást.
+Adjust the path if installed elsewhere. This removes the quarantine attribute; it does not sign or notarize the app.
 
-A parancs az adott alkalmazás karanténjelölését távolítja el; nem ad hozzá fejlesztői aláírást vagy Apple-jóváhagyást. Csak a megbízható forrásból származó LocalTerm-példányon használd.
+## Shortcuts
 
-## Gyorsbillentyűk
-
-| Billentyű | Művelet |
+| Shortcut | Action |
 |---|---|
-| Cmd+T | Új fül hostkeresővel |
-| Cmd+K | Kereső fókuszálása |
-| Cmd+R | Vissza az utolsó terminálhoz |
-| Escape | Hostválasztó bezárása / húzás megszakítása |
+| Cmd+T | New searchable tab |
+| Cmd+K | Focus search |
+| Cmd+R | Return to the last session |
+| Escape | Close host picker or cancel a drag |
 
-## Használat
+## Getting started
 
-1. **Create a new vault**: válassz legalább 12 karakteres jelszót, majd fájlhelyet. Meglévő fájlhoz **Choose a vault file…**, majd **Unlock vault**.
-2. **Keys**: privát kulcs hozzáadása vagy importálása. Az import a kulcs tartalmát a titkosított vaultba másolja.
-3. **Hosts → New host**: név, szervercím, port, felhasználónév és jelszó vagy privát kulcs. Igény szerint csoport és rendezett ugróhostlista is megadható. Az ugróhostválasztó kereshető és betűrendbe rendezett.
-4. **Connect**: első csatlakozáskor ellenőrizd a szerver ujjlenyomatát megbízható forrásból. Megváltozott ujjlenyomatnál a kapcsolat blokkolva van.
-5. A **Save changes** az aktív titkosított fájlba ment. Újraindításkor az utolsó sikeresen megnyitott vault útvonala megmarad; a jelszót ismét meg kell adni.
+1. Select **Create a new vault**, choose a password of at least 12 characters and a location, or use **Choose a vault file…** and **Unlock vault**. The last successfully opened path is remembered, but the password is not.
+2. Under **Keys**, add or import a private key. The key is stored inside the encrypted vault.
+3. Under **Hosts → New host**, enter the address, port, username, credentials and optional group and jump hosts. Save changes.
+4. Connect and verify the server fingerprint against a trusted source. A changed fingerprint blocks the connection.
 
-## Terminálok és fájlkezelés
+## Terminals
 
-- Új terminál külön fülön, teljes területen nyílik. A kereshető új fülről további host választható.
-- Egérrel húzd a fület vagy a panel fogantyúját egy másik terminál szélére osztáshoz. Az együtt megjelenített terminálok közös **Workspace** fület kapnak; a többi terminál külön fülön marad.
-- Legfeljebb hat panel használható vegyes vízszintes és függőleges elrendezésben. A **Layout** menü egyenlő oszlopokat is kínál.
-- Terminál bezárásakor a megmaradó panelek kitöltik a helyet; egyetlen panel teljes méretre nő. A távoli `exit` vagy `Ctrl+D` által lezárt munkamenet füle automatikusan bezárul.
-- Jobb kattintás a terminál fülén → **Duplicate**: új, független kapcsolat ugyanahhoz a mentett hosthoz.
-- **Workspace**: visszalépés a hostokhoz. A felső **Return to session** gomb visszavisz az utoljára kijelölt terminálhoz.
-- **Browse files**: SFTP-listázás, feltöltés és letöltés. Távoli fájl felülírása előtt megerősítést kér.
-- **Snippets**: elmenthető, újra használható parancsok.
-- A **Hosts** megnyitásakor a **Search hosts** mező automatikusan fókuszt kap.
+Open additional searchable tabs with the new-tab shortcut. Drag a terminal tab or pane handle to another pane's edge to create a split Workspace. Other tabs remain separate. Up to six panes are supported; closing a pane expands those remaining. A session closed with `exit` or Ctrl+D closes its tab. Right-click a tab and choose **Duplicate** to open a second connection. **Return to session** returns from the host list to the last terminal.
 
-## Porttovábbítás és ugróhostok
+Under **Hosts → Edit → Terminal theme**, choose Default, Ember Dune, Emerald, Paper, or Custom. Custom allows background, text, cursor and selection colors. Saved changes apply to open terminals for that host. **Vault settings → Terminal clipboard** controls copy on selection and paste on right-click, enabled by default.
 
-**Port forwarding → New forwarding rule**: Local, Remote vagy Dynamic (SOCKS5) típus, SSH-host, figyelő cím/port, szükség szerint célcím/port. Mentés után **Start**, leállításhoz **Stop**. A szabályok a vaultban tárolódnak; a futó alagutak önálló SSH-kapcsolatot használnak.
+## Two-pane SFTP
 
-A host szerkesztőjében állítsd össze a **Jump hosts (in connection order)** listát. Minden ugrás saját hitelesítést és szerverujjlenyomat-ellenőrzést kap. A célcímet az előző SSH-szerver oldja fel. Terminál, SFTP és mindhárom porttovábbítás ugyanazt az útvonalat használja. A célhosttal együtt legfeljebb nyolc SSH-host lehet az útvonalon; körkörös vagy hiányzó hivatkozás nem menthető.
+Open **SFTP** in the sidebar after unlocking. Browse local files on the left and search for a host and connect on the right. The independent connection uses saved credentials, jump hosts and fingerprint verification. Double-click folders, use the path field, Up or Refresh, and select files using checkboxes or **Select all**. Upload and Download copy the selection to the other panel. For name conflicts choose Overwrite, Rename (keep both), Skip or Cancel remaining; apply the choice to all remaining conflicts if desired. Results report completed, skipped and failed files.
 
-## Vault settings
+Delete requires confirmation and permanently removes selected files or empty folders. Copy supports regular files; whole folders and symbolic links cannot be copied. Locking the vault closes the SFTP connection and clears the panels.
 
-- **Automatic vault locking**: az automatikus zárolás főkapcsolója; 1–1440 perces inaktivitási idő; külön képernyőzár- és alvómód-kapcsoló. **Save locking settings** azonnal alkalmazza és a titkosított vaultba menti a választást. Alapból minden bekapcsolt, az időkorlát 15 perc. Kikapcsolt főkapcsolónál képernyőzár és alvó mód sem zárolja a vaultot. A kézi **Lock vault** és az alkalmazásból kilépés továbbra is zárol és bontja a kapcsolatokat.
-- **Import from another encrypted vault…**: egy másik LocalTerm `.ltvault` bejegyzéseinek összevonása. A forrás jelszava szükséges; import előtt a cél mellett titkosított biztonsági másolat készül.
-- **Save an encrypted copy as…**: külön másolat. Az aktív fájl marad az eredeti; a másolatot külön kell megnyitni használatához.
-- **Open another vault…**: másik vault megnyitása.
-- **Change password**: az aktív vault jelszavának cseréje. Régebbi másolatok jelszava nem változik.
+## Port forwarding and jump hosts
 
-A beépített importáló titkosított LocalTerm-vaultokat fogad.
+Under **Port forwarding → New forwarding rule**, select Local, Remote or Dynamic (SOCKS5), specify the SSH host, listening address and port and, where applicable, destination, then save and Start. Stop closes the tunnel. Rules are stored in the vault. Configure ordered jump hosts in the host editor; each hop uses its own authentication and fingerprint verification. Terminal, SFTP and forwarding connections use the configured route. A route supports up to eight hosts including the destination.
 
-## Titkosítás és mentés
+## Vault settings and storage
 
-AES-256-GCM, scrypt jelszószármaztatással (`N=65536, r=8, p=1`), 32 bájtos véletlen sóval, mentésenként új 12 bájtos nonce-szal és 16 bájtos hitelesítési taggel. A vault jelszava nem kerül mentésre. Feloldáskor az adatok a memóriában hozzáférhetők.
+Automatic locking can be disabled or configured with an inactivity interval and separate screen-lock and sleep options. The default is 15 minutes with all options enabled. Manual locking and exiting still close connections. Vault settings also provide importing another encrypted LocalTerm vault, saving an encrypted copy, opening another vault and changing the password; existing copies retain their old password.
 
-A mentés ideiglenes fájlt, fájlszinkronizálást és átnevezést használ. Észlelt külső módosítás esetén nem írja felül a fájlt. Ez nem többgépes zárolási protokoll. iCloud vagy más szinkronizált mappa esetén tartsd a fájlt letöltve, egyszerre egy gépen szerkeszd, és gépcsere előtt várd meg a szinkronizálást. Készíts biztonsági másolatot; elfelejtett jelszóhoz nincs helyreállítási szolgáltatás.
+The vault uses AES-256-GCM and scrypt (`N=65536, r=8, p=1`); its password is not stored. Saving uses a temporary file, synchronization and rename, and detects external changes. This is not a multi-device locking protocol: when using iCloud or another sync service, keep the file downloaded, edit on one device at a time, wait for synchronization and keep backups. There is no password recovery service. macOS and Windows use the same vault format.
 
-Az alkalmazás a legutóbb használt vault útvonalát az adott gép alkalmazásadat-mappájában tartja meg, a jelszót nem. A macOS és Windows vaultformátuma azonos.
+## Updates
 
-## Fejlesztés
+After the first vault unlock each day, LocalTerm checks the latest stable GitHub release. **Vault settings → Check for updates** checks immediately. If an update is available, choose **Update now** or **Later**; installation is never automatic. The app verifies the download size and SHA-256 digest, closes connections, locks the vault, replaces the app and restarts. The previous application is retained with a `.previous-<timestamp>` suffix. The installation location must be writable. Versions older than 1.6.0 require a manual update first.
 
-JavaScript / CommonJS, Electron, xterm.js és ssh2. Node.js 22 vagy újabb és npm szükséges a fejlesztéshez; a kész alkalmazáshoz nem.
+## Development and limitations
+
+The application uses JavaScript/CommonJS, Electron, xterm.js and ssh2. Node.js 22+ and npm are required for development:
 
 ```sh
 npm ci
@@ -91,50 +66,10 @@ npm test
 npm start
 ```
 
-Az SSH-integrációs tesztek helyi TCP-portokat nyitnak. A tesztadatok szintetikusak. A `package-lock.json` rögzíti a függőségeket. A `src/` a teljes alkalmazásforrás, a `test/` az automatizált tesztek, a `releases/1.5.6/` a kész kiadás.
+SSH integration tests use local TCP ports. For 1.7.0, 81 automated tests passed on macOS, including local SFTP batch operations. The Windows build has not been tested in a native Windows runtime. Mosh, serial connections, SSH-agent/FIDO2 and keyboard-interactive MFA are not implemented. Ed25519 OpenSSH keys are supported; export Ed25519 PPK keys as OpenSSH using PuTTYgen. No independent security audit has been performed.
 
-## Korlátok és ellenőrzés
+## License
 
-Mosh, soros port, SSH-agent/FIDO2 és keyboard-interactive MFA nincs megvalósítva. Az Ed25519 kulcs OpenSSH formátumban támogatott; Ed25519 PPK helyett PuTTYgenből OpenSSH formátumot exportálj.
+Copyright © 2026 x0r3n. LocalTerm is licensed under [GPL-3.0-only](../LICENSE); see [COPYRIGHT](../COPYRIGHT). There is no warranty. Third-party license notices remain applicable, including Electron and Chromium notices in the application packages. Rights granted for earlier MIT-licensed versions are unaffected.
 
-Az 1.5.4 érintett ellenőrzésein 52 teszt sikeres macOS-en, beleértve a zárolási szabályokat, a felületet és a titkosított mentést. A Mac felületén a zárolási idő mentését és visszatöltését is ellenőriztük. A kiadási ZIP-ek sértetlenségét és a csomagolt forrás egyezését ellenőriztük. Windows-futtatási környezetben ez a kiadás még nem volt tesztelve. Független biztonsági audit nem készült.
-
-## macOS build készítése
-
-Apple Silicon Macen:
-
-```sh
-npm run build
-```
-
-Eredmény: `dist/mac-arm64/LocalTerm.app`. A forrás mindkét asztali platformot támogatja; a macOS- és Windows-csomagok egy közös repóban találhatók.
-
-A kész csomagok SHA-256 ellenőrzőösszegei: [`releases/1.5.6/SHA256SUMS.txt`](https://github.com/x0r3n/LocalTerm/releases/download/v1.5.6/SHA256SUMS.txt).
-
-## Licenc
-
-Copyright © 2026 x0r3n. A jelenlegi LocalTerm-forráskód a **GNU General Public License 3.0** alatt érhető el, kizárólag a 3. verzió szerint (`GPL-3.0-only`). A teljes licencszöveg a [LICENSE](../LICENSE) fájlban, a szerzői jogi nyilatkozat a [COPYRIGHT](../COPYRIGHT) fájlban található.
-
-A program használható, módosítható és továbbadható a GPL feltételei szerint. Továbbadáskor biztosítani kell a megfelelő forráskódhoz való hozzáférést és meg kell őrizni a szükséges jogi jelöléseket. A programra nincs garancia.
-
-A külső függőségek saját licencei és szerzői jogi jelölései érvényben maradnak. A korábban MIT alatt kiadott források és kész 1.5.4-es csomagok MIT szerinti jogosultságait ez a változás nem vonja vissza. Az 1.5.6-os kiadás GPL-licencű csomagokból áll. A GPL és a szerzői jogi nyilatkozat az alkalmazáscsomagban is megtalálható. A pontos forrás a kész csomagok mellett, a `releases/1.5.6/LocalTerm-1.5.6-source.zip` fájlban is elérhető.
-
-## Külső futtatókörnyezet licencértesítői
-
-A macOS-csomagban a `LocalTerm.app/Contents/Resources/LICENSE.electron.txt` és `LICENSES.chromium.html` fájlok tartalmazzák az Electron és a Chromium értesítőit. Windowson ugyanezek a fájlnevek a kibontott alkalmazás főmappájában találhatók. A LocalTerm saját GPL-licence külön, a `Resources/LICENSE` (macOS), illetve `resources/LICENSE` (Windows) fájlban marad. A külső összetevők eredeti licencszövegei változatlanul megmaradnak.
-
-## Terminálvágólap (1.5.5)
-
-A terminálban kijelölt szöveg azonnal a rendszer vágólapjára kerül. Jobb kattintás a terminál tartalmán beilleszti a vágólap szövegét abba a panelbe. A fülek jobb kattintásos Duplicate menüje változatlanul használható.
-
-A funkció alapból bekapcsolt. Kikapcsolás: **Vault settings → Terminal clipboard → Copy selection and paste on right-click**, majd **Save clipboard settings**. A választás a titkosított vaultban megmarad, és minden nyitott terminálra azonnal érvényes. A megszokott billentyűs másolás és beillesztés továbbra is használható.
-
-A beillesztés az xterm.js normál paste útvonalát használja, beleértve a távoli alkalmazás által bekapcsolt bracketed paste módot. Zárolt vaultba vagy közben bezárt terminálba függőben lévő beillesztés nem jut el. A vágólap a rendszer vágólapja, a rámásolt szöveget a vault zárolása nem törli.
-
-## Hostonkénti termináltémák (1.5.6)
-
-**Hosts → Edit → Terminal theme**: minden hosthoz külön téma menthető. Választható a **Default**, a vöröses **Ember Dune**, a zöldes **Emerald** és a világos **Paper**, továbbá a **Custom** mód. Minden meglévő és új host alapértelmezése a korábbi, változatlan LocalTerm-színvilág.
-
-Custom módban külön beállítható a háttér, a betűszín, a kurzor, a kijelölés háttere és a kijelölt szöveg színe. Színválasztó és hatjegyű hex mező is használható, élő előnézettel. A **Save changes** az adott hosttal együtt, a titkosított vaultba menti a témát. Az adott host már nyitott termináljai újracsatlakozás nélkül frissülnek, a többi host színei megmaradnak. A Default választás visszaállítja az eredeti színeket.
-
-Az 1.5.6 kiadásnál 71 automatizált teszt sikeres macOS-en, beleértve a témák validálását, a titkosított mentést, az importot és a nyitott terminálok frissítését. A témaelőnézetet és az egyéni színek élő alkalmazását natív Mac-felületen, szintetikus SSH-kapcsolaton is ellenőriztük.
+Build on Apple Silicon with `npm run build`; the app is produced under `dist/mac-arm64/`.
