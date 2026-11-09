@@ -1,4 +1,5 @@
 'use strict';
+const {Updates}=require('./updates.cjs');
 const {app,BrowserWindow,ipcMain,dialog,powerMonitor,session,clipboard}=require('electron');
 const {openRoute}=require('./ssh-route.cjs');
 const {Vault}=require('./vault.cjs');
@@ -12,6 +13,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {StringDecoder}=require('node:string_decoder');
 const vault=new Vault(),connections=new Map();
+let updates;
 let win, pendingPath, preferences, queue=Promise.resolve(), generation=0;
 const serial=fn=>{const job=queue.then(fn);queue=job.catch(()=>{});return job;};
 const autoLock=new AutoLock({getVault:()=>vault,lock:()=>lock(),serial});
@@ -55,6 +57,7 @@ async function sftp(id){const s=conn(id);return new Promise((resolve,reject)=>s.
 const forwards=new ForwardManager({openSSH:async hostId=>{const {id}=await connect({hostId,terminal:false});const s=conn(id);return {client:s.client,close:()=>s.close()};},emit:status=>emit('forward:status',status)});
 const connectionHosts=hosts=>hosts.map(({terminalTheme,...record})=>record);
 const handlers={
+ 'update:check':p=>{unlocked();return updates.check(p.manual===true);},
  'vault:state':()=>vaultState(),
  'app:activity':()=>{autoLock.activity();},
  'terminal:copy':p=>{const s=conn(p.id);if(!s.stream)throw Error('Terminal is closed.');if(vault.data.settings?.terminalClipboard?.enabled===false)return; if(typeof p.text!=='string'||p.text.length>1024*1024-64)throw Error('Selected text is too large.');if(p.text)clipboard.writeText(p.text);},
@@ -82,7 +85,7 @@ const handlers={
  'sftp:upload':async p=>{unlocked();const r=await dialog.showOpenDialog(win,{title:'Upload file to server',properties:['openFile']});if(r.canceled)return {canceled:true};const file=r.filePaths[0],remote=path.posix.join(p.path||'.',path.basename(file));const ftp=await sftp(p.id);try{const info=await new Promise(res=>ftp.stat(remote,(e,a)=>res(e?null:a)));if(info){const answer=await dialog.showMessageBox(win,{type:'warning',message:'Replace remote file?',detail:remote,buttons:['Cancel','Replace'],defaultId:0,cancelId:0});if(answer.response!==1)return {canceled:true};}await new Promise((res,rej)=>ftp.fastPut(file,remote,e=>e?rej(e):res()));return {ok:true};}finally{ftp.end();}}
 };
 app.whenReady().then(async()=>{
- app.setName('LocalTerm');preferences=new Preferences(app.getPath('userData'));pendingPath=await preferences.lastVault();
+ app.setName('LocalTerm');updates=new Updates({app,dialog,getWindow:()=>win,beforeQuit:()=>serial(async()=>lock())});preferences=new Preferences(app.getPath('userData'));pendingPath=await preferences.lastVault();
  session.defaultSession.setPermissionRequestHandler((_,__,callback)=>callback(false));
  win=new BrowserWindow({width:1320,height:860,minWidth:950,minHeight:650,backgroundColor:'#101216',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,devTools:!app.isPackaged}});
  installReturnShortcut(win.webContents);

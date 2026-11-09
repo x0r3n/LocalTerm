@@ -1,4 +1,4 @@
-# LocalTerm 1.5.6
+# LocalTerm 1.6.0
 
 Helyi SSH-kliens macOS-re és Windowsra, hordozható, jelszóval titkosított vaulttal. A közös forrás ebben a repóban található; a kész alkalmazások külön platformmappákban vannak.
 
@@ -76,3 +76,11 @@ A korábban MIT alatt kiadott példányokra kapott jogosultságokat a GPL-re vá
 Custom módban külön beállítható a háttér, a betűszín, a kurzor, a kijelölés háttere és a kijelölt szöveg színe. Színválasztó és hatjegyű hex mező is használható, élő előnézettel. A **Save changes** az adott hosttal együtt, a titkosított vaultba menti a témát. Az adott host már nyitott termináljai újracsatlakozás nélkül frissülnek, a többi host színei megmaradnak. A Default választás visszaállítja az eredeti színeket.
 
 Az 1.5.6 kiadásnál 71 automatizált teszt sikeres macOS-en, beleértve a témák validálását, a titkosított mentést, az importot és a nyitott terminálok frissítését. A témaelőnézetet és az egyéni színek élő alkalmazását natív Mac-felületen, szintetikus SSH-kapcsolaton is ellenőriztük.
+
+## Application updates (1.6.0)
+
+After the first vault unlock of the day, LocalTerm checks the latest stable release at https://github.com/x0r3n/LocalTerm/releases. The check date is stored locally on this computer. Vault settings also contains **Check for updates**, which runs a check immediately.
+
+When an update is available, choose **Update now** or **Later**. Updates are never installed automatically. LocalTerm downloads the matching macOS Apple Silicon ZIP or Windows x64 portable executable and verifies its size and SHA-256 digest against GitHub release metadata. It closes SSH connections, locks the vault, replaces the app, and restarts. The previous app is retained beside the installation with a `.previous-<timestamp>` suffix. The app must be installed in a writable location. The vault file is not moved.
+
+Publish future releases with the existing asset names: `LocalTerm-VERSION-Mac-AppleSilicon.zip` containing LocalTerm.app and `LocalTerm-VERSION-Windows-x64-Portable.exe`. The GitHub asset must include its SHA-256 digest. Draft and prerelease versions are ignored. A first manual installation of 1.6.0 is required to enable updates from older versions.

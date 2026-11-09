@@ -1,0 +1,1 @@
+49cbe0c375a278152aa1f29365036683df743d0913830eb60eaf16f38ba5f345  LocalTerm-1.6.0-Mac-AppleSilicon.zip
