@@ -76,4 +76,8 @@ Build on Apple Silicon with `npm run build`; the app is produced under `dist/mac
 
 ## Compact terminal bar and logs (1.8.0)
 
-Terminals use a single top tab bar with Workspace on the left. Right-click a tab for Layout, Duplicate, Close terminal, Browse files and Lock vault. Terminal logs appears below Port forwarding in the sidebar. Select a recent session to read its output. Vault settings controls the number of lines retained per terminal (default 2000, range 100–10000). Logs are saved in the encrypted vault every few seconds and when closing a terminal. Up to 50 sessions and 4 MB of log text are retained. An unexpected shutdown may lose the last few seconds.
+Terminals use a single top tab bar with Workspace on the left. Right-click a tab for Layout, Duplicate, Close terminal, Browse files and Lock vault. Terminal logs appears below Port forwarding in the sidebar. Select a recent session to read its output. Vault settings controls the number of lines retained per terminal (default 2000, range 100–10000). Logs are saved in a separate encrypted local file every few seconds and when closing a terminal. Up to 50 sessions and 4 MB of log text are retained. An unexpected shutdown may lose the last few seconds.
+
+## Local encrypted logs (1.8.1)
+
+Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.

@@ -6,7 +6,7 @@ LocalTerm is a local SSH client for macOS and Windows with a portable, password-
 
 ## Download
 
-Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.7.0](https://github.com/x0r3n/LocalTerm/releases/tag/v1.7.0). The release includes source and SHA-256 checksums. The builds are unsigned; the Mac build is not notarized.
+Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.1](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.1). The release includes source and SHA-256 checksums. The builds are unsigned; the Mac build is not notarized.
 
 See the [macOS guide](docs/macos.md) and [Windows guide](docs/windows.md) for installation, shortcuts and usage.
 
@@ -38,4 +38,8 @@ Copyright © 2026 x0r3n. Licensed under [GPL-3.0-only](LICENSE); see [COPYRIGHT]
 
 ## Compact terminal bar and logs (1.8.0)
 
-Terminals use a single top tab bar with Workspace on the left. Right-click a tab for Layout, Duplicate, Close terminal, Browse files and Lock vault. Terminal logs appears below Port forwarding in the sidebar. Select a recent session to read its output. Vault settings controls the number of lines retained per terminal (default 2000, range 100–10000). Logs are saved in the encrypted vault every few seconds and when closing a terminal. Up to 50 sessions and 4 MB of log text are retained. An unexpected shutdown may lose the last few seconds.
+Terminals use a single top tab bar with Workspace on the left. Right-click a tab for Layout, Duplicate, Close terminal, Browse files and Lock vault. Terminal logs appears below Port forwarding in the sidebar. Select a recent session to read its output. Vault settings controls the number of lines retained per terminal (default 2000, range 100–10000). Logs are saved every few seconds in a separate encrypted file in the local application data folder. Up to 50 sessions and 4 MB of log text are retained. An unexpected shutdown may lose the last few seconds.
+
+## Local encrypted logs (1.8.1)
+
+Terminal logs are encrypted in the local application data folder. The encryption key is stored in the vault. Existing vault logs are migrated on first use. Delete individual or all logs, or export and restore an encrypted archive from Terminal logs. The archive requires the same vault key; retain a backup of the vault. Logs stay local to each computer.
