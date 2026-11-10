@@ -1,4 +1,4 @@
-# LocalTerm 1.8.0 — macOS
+# LocalTerm — macOS
 
 ![LocalTerm hosts and groups](images/localterm-hosts.jpg)
 
