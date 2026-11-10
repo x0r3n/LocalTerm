@@ -1,4 +1,4 @@
-# LocalTerm 1.7.0
+# LocalTerm
 
 LocalTerm is a local SSH client for macOS and Windows with a portable, password-encrypted vault. No LocalTerm account is required.
 
