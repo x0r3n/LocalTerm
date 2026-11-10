@@ -33,3 +33,5 @@ test('forwarding rules stay encrypted and old vault collections migrate without 
  const file=await fixture(t),vault=new Vault();await vault.create(file,password);migrated.forwards.push({id:'tunnel',label:'Private database',hostId:'legacy',type:'local',bindAddress:'127.0.0.1',bindPort:15432,targetAddress:'private-db.internal',targetPort:5432});await vault.save(migrated);
  assert(!(await fs.readFile(file,'utf8')).includes('private-db.internal'));vault.lock();await vault.open(file,password);assert.deepEqual(vault.data.forwards,migrated.forwards);
 });
+
+test('terminal logs and line settings survive encrypted vault round trip',async t=>{const file=await fixture(t),v=new Vault();await v.create(file,password);const data=v.state().data;data.settings.terminalLogLines=2000;data.terminalLogs=[{id:'session',host:'example',username:'alice',updated:1,text:'private terminal output'}];await v.save(data);v.lock();assert.equal((await fs.readFile(file,'utf8')).includes('private terminal output'),false);await v.open(file,password);assert.equal(v.data.terminalLogs[0].text,'private terminal output');assert.equal(v.data.settings.terminalLogLines,2000);});

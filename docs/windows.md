@@ -1,4 +1,4 @@
-# LocalTerm 1.7.0 — Windows
+# LocalTerm 1.8.0 — Windows
 
 ![LocalTerm hosts and groups](images/localterm-hosts.jpg)
 
@@ -65,3 +65,7 @@ SSH integration tests use local TCP ports. For 1.7.0, 81 automated tests passed 
 Copyright © 2026 x0r3n. LocalTerm is licensed under [GPL-3.0-only](../LICENSE); see [COPYRIGHT](../COPYRIGHT). There is no warranty. Third-party license notices remain applicable, including Electron and Chromium notices in the application packages. Rights granted for earlier MIT-licensed versions are unaffected.
 
 Build the Windows x64 ZIP and portable EXE with `npm run build:win`.
+
+## Compact terminal bar and logs (1.8.0)
+
+Terminals use a single top tab bar with Workspace on the left. Right-click a tab for Layout, Duplicate, Close terminal, Browse files and Lock vault. Terminal logs appears below Port forwarding in the sidebar. Select a recent session to read its output. Vault settings controls the number of lines retained per terminal (default 2000, range 100–10000). Logs are saved in the encrypted vault every few seconds and when closing a terminal. Up to 50 sessions and 4 MB of log text are retained. An unexpected shutdown may lose the last few seconds.

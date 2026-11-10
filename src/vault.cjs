@@ -14,6 +14,7 @@ const digest = b => crypto.createHash('sha256').update(b).digest('hex');
 function validate(data) {
  if (!data || !Array.isArray(data.hosts) || !Array.isArray(data.keys) || !Array.isArray(data.snippets) || !data.knownHosts || typeof data.knownHosts !== 'object' || Array.isArray(data.knownHosts)) throw Error('Invalid vault contents.');
  validateLockSettings(data.settings);
+ const logLines=data.settings?.terminalLogLines;if(logLines!==undefined&&(!Number.isInteger(logLines)||logLines<100||logLines>10000))throw Error('Invalid terminal log line limit.');
  const clipboard=data.settings?.terminalClipboard;if(clipboard!==undefined&&(!clipboard||typeof clipboard!=='object'||Array.isArray(clipboard)||typeof clipboard.enabled!=='boolean'))throw Error('Invalid terminal clipboard settings.');
  const normalized=structuredClone(data);
  if(normalized.forwards===undefined)normalized.forwards=[];
