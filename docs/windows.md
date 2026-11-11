@@ -1,4 +1,4 @@
-# LocalTerm 1.8.0 — Windows
+# LocalTerm — Windows
 
 ![LocalTerm hosts and groups](images/localterm-hosts.jpg)
 
