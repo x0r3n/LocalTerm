@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
+Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
 
 ## Shortcuts
 
@@ -73,3 +73,7 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 ## Local encrypted logs (1.8.1)
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
+
+## macOS local network access (1.8.4)
+
+The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.

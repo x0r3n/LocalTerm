@@ -1,6 +1,6 @@
 {
   "name": "localterm",
-  "version": "1.8.1",
+  "version": "1.8.4",
   "description": "Local SSH client with portable encrypted vaults",
   "main": "src/main.cjs",
   "author": "LocalTerm",
@@ -46,7 +46,10 @@
           "from": "node_modules/electron/dist/LICENSES.chromium.html",
           "to": "LICENSES.chromium.html"
         }
-      ]
+      ],
+      "extendInfo": {
+        "NSLocalNetworkUsageDescription": "LocalTerm connects to SSH servers on your local network for terminal sessions, SFTP file transfers, and port forwarding."
+      }
     },
     "npmRebuild": false,
     "win": {
@@ -78,6 +81,7 @@
         "from": "COPYRIGHT",
         "to": "COPYRIGHT"
       }
-    ]
+    ],
+    "afterPack": "build-scripts/sign-macos.cjs"
   }
 }

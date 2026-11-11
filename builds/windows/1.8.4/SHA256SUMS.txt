@@ -1,0 +1,2 @@
+d0baf888b3cca153f9c7517b0189a27ff04ec95de99da5d7bec7c4c6027d9464  LocalTerm-1.8.4-Windows-x64.zip
+ea3808224fb3f909392c817eaa0c90f71e73599e07aec992c0a05d8f5a102750  LocalTerm-1.8.4-Windows-x64-Portable.exe

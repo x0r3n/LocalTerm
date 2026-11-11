@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.7.0/LocalTerm-1.7.0-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is unsigned and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -81,3 +81,7 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 ## Local encrypted logs (1.8.1)
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
+
+## macOS local network access (1.8.4)
+
+The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.

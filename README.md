@@ -6,7 +6,7 @@ LocalTerm is a local SSH client for macOS and Windows with a portable, password-
 
 ## Download
 
-Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.1](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.1). The release includes source and SHA-256 checksums. The builds are unsigned; the Mac build is not notarized.
+Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.4](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.4). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
 
 See the [macOS guide](docs/macos.md) and [Windows guide](docs/windows.md) for installation, shortcuts and usage.
 
@@ -43,3 +43,7 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 ## Local encrypted logs (1.8.1)
 
 Terminal logs are encrypted in the local application data folder. The encryption key is stored in the vault. Existing vault logs are migrated on first use. Delete individual or all logs, or export and restore an encrypted archive from Terminal logs. The archive requires the same vault key; retain a backup of the vault. Logs stay local to each computer.
+
+## macOS local network access (1.8.4)
+
+The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.
