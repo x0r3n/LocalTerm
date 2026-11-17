@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const usesControlShortcuts=['win32','linux'].includes(window.api.platform);
 const shortcutLabel=usesControlShortcuts?'Ctrl+':'⌘';
-const state = { locked: true, path: '', data: null, view: 'hosts', group: '', sessions: new Map(), workspaces: new Map(), activeWorkspace: null, pickerTabs: new Map(), activePicker: null, active: null, epoch: 0, layout: 1, dockTree: null, dragSession: null, slots: [], focusSlot: 0, forwards: new Map() };
+const state = { locked: true, path: '', data: null, view: 'hosts', group: '', sessions: new Map(), workspaces: new Map(), activeWorkspace: null, pickerTabs: new Map(), tabOrder: [], activePicker: null, active: null, epoch: 0, layout: 1, dockTree: null, dragSession: null, slots: [], focusSlot: 0, forwards: new Map() };
 let toastTimer;
 function notify(message, success = false) { clearTimeout(toastTimer); $('toast').textContent = message; $('toast').classList.toggle('success', success); $('toast').hidden = false; toastTimer = setTimeout(() => $('toast').hidden = true, 7000); }
 async function call(method, payload = {}) { const result = await window.api.call(method, payload); if (result?.error) throw new Error(result.error); return result; }
@@ -132,13 +132,13 @@ function terminalMenu(target,getId){target.addEventListener('contextmenu',event=
 document.addEventListener('pointerdown',event=>{if(!$('terminal-context-menu').contains(event.target))hideTerminalMenu();},true);
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('terminal-context-menu').hidden){hideTerminalMenu();event.preventDefault();if(state.activePicker)$('host-picker-search').focus();else state.sessions.get(state.active)?.term.focus();}});
 window.addEventListener('blur',hideTerminalMenu);window.addEventListener('resize',hideTerminalMenu);
-function clearTerminalDrag(){clearTimeout(dragTabHoverTimer);dragTabHoverTimer=null;dragTabHoverKey=null;pointerTerminalDrag=null;state.dragSession=null;document.body.classList.remove('terminal-dragging');document.querySelectorAll('[data-drop-zone]').forEach(p=>delete p.dataset.dropZone);}
+function clearTerminalDrag(){clearTimeout(dragTabHoverTimer);dragTabHoverTimer=null;dragTabHoverKey=null;pointerTerminalDrag=null;state.dragSession=null;document.body.classList.remove('terminal-dragging');document.querySelectorAll('[data-tab-drop]').forEach(tab=>delete tab.dataset.tabDrop);document.querySelectorAll('[data-drop-zone]').forEach(p=>delete p.dataset.dropZone);}
 function dockLeaves(node){return node?(node.axis?[...dockLeaves(node.first),...dockLeaves(node.second)]:[node.id]):[];}
 function dockMap(node,fn){return node.axis?{...node,first:dockMap(node.first,fn),second:dockMap(node.second,fn)}:fn(node);}
 function dockRemove(node,id){if(!node)return null;if(!node.axis)return node.id===id?null:node;const first=dockRemove(node.first,id),second=dockRemove(node.second,id);return first&&second?{...node,first,second}:first||second;}
 function dockRects(node,rect={x:0,y:0,w:100,h:100},out=[]){if(!node.axis){out.push({id:node.id,...rect});return out;}const a=dockLeaves(node.first).length,b=dockLeaves(node.second).length;const ratio=a/(a+b);if(node.axis==='x'){dockRects(node.first,{...rect,w:rect.w*ratio},out);dockRects(node.second,{...rect,x:rect.x+rect.w*ratio,w:rect.w*(1-ratio)},out);}else{dockRects(node.first,{...rect,h:rect.h*ratio},out);dockRects(node.second,{...rect,y:rect.y+rect.h*ratio,h:rect.h*(1-ratio)},out);}return out;}
 function horizontalDock(ids){return ids.length===1?{id:ids[0]}:{axis:'x',first:{id:ids[0]},second:horizontalDock(ids.slice(1))};}
-function makeTerminalDraggable(element,id){element.draggable=false;element.dataset.terminalDrag='true';element.addEventListener('pointerdown',event=>{if(event.button!==0||state.locked||event.target.closest('select,option,.pane-close')||event.target.textContent==='×')return;pointerTerminalDrag={id,x:event.clientX,y:event.clientY,started:false};});element.title='Drag to arrange terminals';element.addEventListener('dragstart',event=>{if(state.locked||!state.sessions.has(id)){event.preventDefault();return;}state.dragSession=id;event.dataTransfer?.setData('application/x-localterm-session',id);if(event.dataTransfer)event.dataTransfer.effectAllowed='move';document.body.classList.add('terminal-dragging');});element.addEventListener('dragend',clearTerminalDrag);}
+function makeTerminalDraggable(element,id){element.draggable=false;element.dataset.terminalDrag='true';element.addEventListener('pointerdown',event=>{if(event.button!==0||state.locked||event.target.closest('select,option,.pane-close')||event.target.textContent==='×')return;pointerTerminalDrag={id,tabKey:element.dataset.tabKey||null,x:event.clientX,y:event.clientY,started:false};});element.title='Drag to arrange terminals';element.addEventListener('dragstart',event=>{if(state.locked||!state.sessions.has(id)){event.preventDefault();return;}state.dragSession=id;event.dataTransfer?.setData('application/x-localterm-session',id);if(event.dataTransfer)event.dataTransfer.effectAllowed='move';document.body.classList.add('terminal-dragging');});element.addEventListener('dragend',clearTerminalDrag);}
 function dropZone(event,pane){const r=pane.getBoundingClientRect();const x=r.width?(event.clientX-r.left)/r.width:.5,y=r.height?(event.clientY-r.top)/r.height:.5;const edges=[['left',x],['right',1-x],['top',y],['bottom',1-y]].sort((a,b)=>a[1]-b[1]);return edges[0][1]<.25?edges[0][0]:'center';}
 function makeTerminalDropTarget(pane,getIndex){pane.addEventListener('dragover',event=>{if(!state.dragSession||state.locked||!state.sessions.has(state.dragSession))return;event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect='move';document.querySelectorAll('[data-drop-zone]').forEach(p=>{if(p!==pane)delete p.dataset.dropZone;});pane.dataset.dropZone=dropZone(event,pane);});pane.addEventListener('dragleave',event=>{if(!pane.contains(event.relatedTarget))delete pane.dataset.dropZone;});pane.addEventListener('drop',event=>{const source=state.dragSession;if(!source||state.locked||!state.sessions.has(source))return;event.preventDefault();event.stopPropagation();const index=getIndex(),zone=dropZone(event,pane);clearTerminalDrag();dockSession(source,index,zone);});}
 function dockSession(source,index,zone){const target=state.slots[index];if(index<0||source===target)return;if(zone==='center'||!target){selectSlot(index,source);return;}let tree=state.dockTree||horizontalDock(state.slots.filter(Boolean));tree=dockRemove(tree,source);if(dockLeaves(tree).length>=6){notify('Up to six terminals can be arranged at once. Drop in the center to replace a pane.');return;}const first=['left','top'].includes(zone);tree=dockMap(tree,node=>node.id===target?{axis:['left','right'].includes(zone)?'x':'y',first:{id:first?source:target},second:{id:first?target:source}}:node);state.dockTree=tree;state.slots=dockLeaves(tree);state.layout=state.slots.length;state.focusSlot=state.slots.indexOf(source);state.active=source;renderTerminals();}
@@ -199,6 +199,8 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')clearTermina
 window.addEventListener('blur',()=>{pointerTerminalDrag=null;clearTerminalDrag();});
 
 let pointerTerminalDrag=null,dragTabHoverTimer=null,dragTabHoverKey=null,suppressDragClickUntil=0;
+function tabDropTarget(hit,event){const tab=hit?.closest('#terminal-tabs [data-tab-key]');return tab?{key:tab.dataset.tabKey,side:event.clientX<tab.getBoundingClientRect().left+tab.getBoundingClientRect().width/2?'before':'after',tab}:null;}
+function reorderTerminalTab(source,target,side){if(!source||source===target)return;const order=state.tabOrder.filter(key=>key!==source),index=order.indexOf(target);if(index<0)return;order.splice(index+(side==='after'?1:0),0,source);state.tabOrder=order;}
 function hoverDragTab(tab){
  const key=tab?.dataset.workspace?`workspace:${tab.dataset.workspace}`:tab?.dataset.session?`session:${tab.dataset.session}`:null;
  if(key===dragTabHoverKey)return;
@@ -214,15 +216,19 @@ document.addEventListener('pointermove',event=>{
  if(!drag.started){if(Math.hypot(event.clientX-drag.x,event.clientY-drag.y)<6)return;drag.started=true;state.dragSession=drag.id;document.body.classList.add('terminal-dragging');}
  event.preventDefault();const hit=document.elementFromPoint(event.clientX,event.clientY),pane=hit?.closest('.terminal-pane.active,.empty-terminal');
  document.querySelectorAll('[data-drop-zone]').forEach(p=>{if(p!==pane)delete p.dataset.dropZone;});
- hoverDragTab(pane?null:hit?.closest('[data-workspace],[data-session]'));
+ document.querySelectorAll('[data-tab-drop]').forEach(tab=>delete tab.dataset.tabDrop);
+ const target=drag.tabKey?tabDropTarget(hit,event):null;if(target&&target.key!==drag.tabKey)target.tab.dataset.tabDrop=target.side;
+ hoverDragTab(pane?null:drag.tabKey?(drag.id?hit?.closest('[data-workspace]'):null):hit?.closest('[data-workspace],[data-session]'));
  if(pane)pane.dataset.dropZone=dropZone(event,pane);
 },{passive:false});
 document.addEventListener('pointerup',event=>{
  const drag=pointerTerminalDrag;if(!drag?.started){clearTerminalDrag();return;}
  event.preventDefault();suppressDragClickUntil=performance.now()+250;
- const pane=document.elementFromPoint(event.clientX,event.clientY)?.closest('.terminal-pane.active,.empty-terminal');
+ const hit=document.elementFromPoint(event.clientX,event.clientY),target=drag.tabKey?tabDropTarget(hit,event):null;
+ const pane=hit?.closest('.terminal-pane.active,.empty-terminal');
  const index=pane?Number(pane.dataset.slot):-1,zone=pane?dropZone(event,pane):null;
- clearTerminalDrag();if(!state.locked&&state.sessions.has(drag.id)&&index>=0&&zone)dockSession(drag.id,index,zone);
+ clearTerminalDrag();if(!state.locked&&target)reorderTerminalTab(drag.tabKey,target.key,target.side);
+ if(!state.locked&&state.sessions.has(drag.id)&&index>=0&&zone)dockSession(drag.id,index,zone);
  if(!state.locked)renderAllTabs();
 });
 document.addEventListener('pointercancel',()=>{const dragging=pointerTerminalDrag?.started;clearTerminalDrag();if(dragging){suppressDragClickUntil=performance.now()+250;if(!state.locked)renderAllTabs();}});
@@ -231,15 +237,16 @@ function renderAllTabs(){
  if(pointerTerminalDrag?.started)return; // Keep the grabbed tab mounted until release.
  const tabs=$('terminal-tabs');tabs.replaceChildren();
  const grouped=new Set();
- for(const [key,g] of state.workspaces){g.slots.forEach(id=>grouped.add(id));const tab=button(`▦ Workspace · ${g.slots.length}`,!state.activePicker&&state.activeWorkspace===key?'active':'',()=>showWorkspace(key));tab.dataset.workspace=key;terminalMenu(tab,()=>g.active||g.slots.find(id=>state.sessions.has(id)));tab.title=g.slots.map(id=>state.sessions.get(id)?.host.label).join(' · ');const close=el('span',null,'×');close.title='Close workspace';close.addEventListener('click',action(async e=>{e.stopPropagation();for(const id of [...g.slots])await closeSession(id);}));tab.append(close);tabs.append(tab);
+ for(const [key,g] of state.workspaces){g.slots.forEach(id=>grouped.add(id));const tab=button(`▦ Workspace · ${g.slots.length}`,!state.activePicker&&state.activeWorkspace===key?'active':'',()=>showWorkspace(key));tab.dataset.workspace=key;tab.dataset.tabKey='workspace:'+key;makeTerminalDraggable(tab,null);terminalMenu(tab,()=>g.active||g.slots.find(id=>state.sessions.has(id)));tab.title=g.slots.map(id=>state.sessions.get(id)?.host.label).join(' · ');const close=el('span',null,'×');close.title='Close workspace';close.addEventListener('click',action(async e=>{e.stopPropagation();for(const id of [...g.slots])await closeSession(id);}));tab.append(close);tabs.append(tab);
 
  }
  for(const s of state.sessions.values()){
   if(grouped.has(s.id))continue;
-  const tab=button(`${s.closed?'○':'●'} ${s.host.label}`,!state.activePicker&&s.id===state.active?'active':'',()=>showSession(s.id));tab.dataset.session=s.id;terminalMenu(tab,()=>s.id);makeTerminalDraggable(tab,s.id);
+  const tab=button(`${s.closed?'○':'●'} ${s.host.label}`,!state.activePicker&&s.id===state.active?'active':'',()=>showSession(s.id));tab.dataset.session=s.id;tab.dataset.tabKey='session:'+s.id;terminalMenu(tab,()=>s.id);makeTerminalDraggable(tab,s.id);
   const close=el('span',null,'×');close.title='Close session';close.addEventListener('click',action(async e=>{e.stopPropagation();const picker=state.activePicker;await closeSession(s.id);if(picker&&state.pickerTabs.has(picker))showHostPicker(picker);}));tab.append(close);tabs.append(tab);
  }
- for(const [id] of state.pickerTabs){const tab=button('New Tab',state.activePicker===id?'active':'',()=>showHostPicker(id));tab.dataset.picker=id;const close=el('span',null,'×');close.title='Close new tab';close.addEventListener('click',e=>{e.stopPropagation();closeHostPicker(id);});tab.append(close);tabs.append(tab);}
+ for(const [id] of state.pickerTabs){const tab=button('New Tab',state.activePicker===id?'active':'',()=>showHostPicker(id));tab.dataset.picker=id;tab.dataset.tabKey='picker:'+id;makeTerminalDraggable(tab,null);const close=el('span',null,'×');close.title='Close new tab';close.addEventListener('click',e=>{e.stopPropagation();closeHostPicker(id);});tab.append(close);tabs.append(tab);}
+ const current=[...tabs.children],keys=new Set(current.map(tab=>tab.dataset.tabKey));state.tabOrder=state.tabOrder.filter(key=>keys.has(key));for(const tab of current)if(!state.tabOrder.includes(tab.dataset.tabKey))state.tabOrder.push(tab.dataset.tabKey);const byKey=new Map(current.map(tab=>[tab.dataset.tabKey,tab]));for(const key of state.tabOrder)tabs.append(byKey.get(key));
  const add=button('＋','new-terminal-tab',openHostTab);add.id='new-terminal-tab';add.title=`New tab (${shortcutLabel}T)`;add.setAttribute('aria-label','New terminal tab');tabs.append(add);
 }
 function openHostTab(){hideTerminalMenu();if(state.locked||document.querySelector('dialog[open]'))return;const id=crypto.randomUUID();state.pickerTabs.set(id,{query:'',connecting:false});showHostPicker(id);}

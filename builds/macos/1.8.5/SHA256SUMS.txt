@@ -1,0 +1,1 @@
+d8efadc83f1a6ce5649c8afeecf3a1bb8357fe11ea87d7a6bc20457d992392f9  LocalTerm-1.8.5-Mac-AppleSilicon.zip

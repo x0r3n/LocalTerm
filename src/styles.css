@@ -27,3 +27,6 @@
 .sftp-local-shortcuts{min-height:78px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}.sftp-local-shortcuts span{font-size:12px;flex:1}
 
 #terminal-bar{display:flex;align-items:center;gap:8px;flex-shrink:0}#terminal-tabs{flex:1;min-width:0}.terminal-mode #terminal-tools{display:none!important}.terminal-mode .terminal-pane .pane-heading{display:none!important}.terminal-mode #terminal-panes{flex:1;min-height:0}#terminal-logs{padding:24px;overflow:auto}#terminal-logs pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px monospace;max-height:65vh;overflow:auto;background:#0d141c;padding:16px}#terminal-logs button{margin:4px}
+
+/* Insertion markers for tab reordering. */
+#terminal-tabs [data-tab-key]{position:relative;user-select:none;flex-shrink:0;touch-action:none}#terminal-tabs [data-tab-drop=before]{box-shadow:inset 3px 0 var(--accent)}#terminal-tabs [data-tab-drop=after]{box-shadow:inset -3px 0 var(--accent)}

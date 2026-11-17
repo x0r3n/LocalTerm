@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
+Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
 
 ## Shortcuts
 
@@ -23,6 +23,8 @@ Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download
 4. Connect and verify the server fingerprint against a trusted source. A changed fingerprint blocks the connection.
 
 ## Terminals
+
+Drag tabs left or right in the top bar to reorder them. The green insertion marker shows whether the tab will be placed before or after its target. Workspace and host-picker tabs can also be moved. Reordering keeps connections and split layouts intact; the order lasts for the current unlocked vault session. Press Escape to cancel.
 
 Open additional searchable tabs with the new-tab shortcut. Drag a terminal tab or pane handle to another pane's edge to create a split Workspace. Other tabs remain separate. Up to six panes are supported; closing a pane expands those remaining. A session closed with `exit` or Ctrl+D closes its tab. Right-click a tab and choose **Duplicate** to open a second connection. **Return to session** returns from the host list to the last terminal.
 
@@ -74,6 +76,6 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
 
-## macOS local network access (1.8.4)
+## macOS local network access (1.8.5)
 
 The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.

@@ -1,6 +1,6 @@
 {
   "name": "localterm",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "Local SSH client with portable encrypted vaults",
   "main": "src/main.cjs",
   "author": "LocalTerm",

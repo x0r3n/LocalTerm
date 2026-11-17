@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.4/LocalTerm-1.8.4-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -31,6 +31,8 @@ Adjust the path if installed elsewhere. This removes the quarantine attribute; i
 4. Connect and verify the server fingerprint against a trusted source. A changed fingerprint blocks the connection.
 
 ## Terminals
+
+Drag tabs left or right in the top bar to reorder them. The green insertion marker shows whether the tab will be placed before or after its target. Workspace and host-picker tabs can also be moved. Reordering keeps connections and split layouts intact; the order lasts for the current unlocked vault session. Press Escape to cancel.
 
 Open additional searchable tabs with the new-tab shortcut. Drag a terminal tab or pane handle to another pane's edge to create a split Workspace. Other tabs remain separate. Up to six panes are supported; closing a pane expands those remaining. A session closed with `exit` or Ctrl+D closes its tab. Right-click a tab and choose **Duplicate** to open a second connection. **Return to session** returns from the host list to the last terminal.
 
@@ -82,6 +84,6 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
 
-## macOS local network access (1.8.4)
+## macOS local network access (1.8.5)
 
 The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.

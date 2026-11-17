@@ -6,7 +6,7 @@ LocalTerm is a local SSH client for macOS and Windows with a portable, password-
 
 ## Download
 
-Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.4](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.4). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
+Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.5](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.5). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
 
 See the [macOS guide](docs/macos.md) and [Windows guide](docs/windows.md) for installation, shortcuts and usage.
 
@@ -30,7 +30,7 @@ npm run build       # macOS Apple Silicon
 npm run build:win   # Windows x64 ZIP and portable EXE
 ```
 
-Node.js 22+ and npm are required. Large binaries in `builds/` use Git LFS; GitHub's source ZIP may contain LFS pointers. The release includes a separate source archive. The 1.7.0 test suite passed 81 tests on macOS, including local SFTP integration tests; native Windows runtime testing remains outstanding.
+Node.js 22+ and npm are required. Large binaries in `builds/` use Git LFS; GitHub's source ZIP may contain LFS pointers. The release includes a separate source archive. The 1.8.5 test suite passed 88 tests on macOS, including local SFTP integration tests; native Windows runtime testing remains outstanding.
 
 ## License
 
@@ -47,3 +47,7 @@ Terminal logs are encrypted in the local application data folder. The encryption
 ## macOS local network access (1.8.4)
 
 The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.
+
+## Tab reordering (1.8.5)
+
+Drag a terminal tab left or right in the top tab bar and release it before or after another tab. A green insertion marker shows its destination. Workspace and new-host picker tabs can also be reordered. Connections and split layouts stay open, and the order is retained while the vault is unlocked. Dragging onto a terminal pane still creates a split; hover over a Workspace tab to reveal its panes. Press Escape to cancel.
