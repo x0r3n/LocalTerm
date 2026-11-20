@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.6/LocalTerm-1.8.6-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -84,6 +84,10 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
 
-## macOS local network access (1.8.5)
+## macOS local network access (1.8.4)
 
 The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.
+
+## SSH keepalive (1.8.6)
+
+For an SSH server that repeatedly disconnects with the default keepalive, open **Hosts → Edit**, select **SSH keepalive → Off**, then save and reconnect. The setting applies to that host, including when it is used as a jump host. The default sends a probe every 15 seconds.

@@ -41,7 +41,7 @@ async function openRoute({data,hostId,isCurrent,verify,register}){
    const closed=()=>{cleanup();reject(Error(`${host.label}: connection closed.`));};
    const cleanup=()=>{client.removeListener('ready',ready);client.removeListener('error',error);client.removeListener('close',closed);};
    client.once('ready',ready);client.once('error',error);client.once('close',closed);
-   try{client.connect({...auth[i],...(sock?{sock}:{host:host.address,port:Number(host.port)||22}),readyTimeout:20000,keepaliveInterval:15000,keepaliveCountMax:3,hostHash:'sha256',hostVerifier:(hash,accept)=>{Promise.resolve().then(()=>verify(host,hash)).then(accept,()=>accept(false));}});}catch(e){cleanup();sock?.destroy();reject(e);}
+   try{client.connect({...auth[i],...(sock?{sock}:{host:host.address,port:Number(host.port)||22}),readyTimeout:20000,keepaliveInterval:host.sshKeepAlive === false ? 0 : 15000,keepaliveCountMax:3,hostHash:'sha256',hostVerifier:(hash,accept)=>{Promise.resolve().then(()=>verify(host,hash)).then(accept,()=>accept(false));}});}catch(e){cleanup();sock?.destroy();reject(e);}
   });
   previous=client;
  }

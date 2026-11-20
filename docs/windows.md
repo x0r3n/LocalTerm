@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.5/LocalTerm-1.8.5-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
+Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.6/LocalTerm-1.8.6-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.6/LocalTerm-1.8.6-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
 
 ## Shortcuts
 
@@ -76,6 +76,10 @@ Terminals use a single top tab bar with Workspace on the left. Right-click a tab
 
 Logs are stored in the local application data folder, with their encryption key in the vault. Existing vault logs are migrated on first use. In Terminal logs, delete individual or all logs, or save and restore an encrypted archive. Restore requires the same vault key, so back up the vault as well. Logs are local to each machine.
 
-## macOS local network access (1.8.5)
+## macOS local network access (1.8.4)
 
 The macOS build includes a local network usage description and distinct executable UUIDs. Allow LocalTerm under Privacy & Security → Local Network when prompted. The build is ad hoc signed; it is not notarized. The local network connection was confirmed by the user.
+
+## SSH keepalive (1.8.6)
+
+For an SSH server that repeatedly disconnects with the default keepalive, open **Hosts → Edit**, select **SSH keepalive → Off**, then save and reconnect. The setting applies to that host, including when it is used as a jump host. The default sends a probe every 15 seconds.

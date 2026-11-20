@@ -28,7 +28,11 @@ function validate(data) {
   }
  }
  for (const h of data.hosts) if (typeof h.address !== 'string' || !h.address.trim() || typeof h.username !== 'string' || !Number.isInteger(Number(h.port)) || Number(h.port)<1 || Number(h.port)>65535) throw Error('Each host needs an address, username and valid port.');
- for(const h of normalized.hosts){resolveRoute(normalized,h.id);validateTerminalTheme(h.terminalTheme);}
+ for(const h of normalized.hosts){
+  resolveRoute(normalized,h.id);
+  validateTerminalTheme(h.terminalTheme);
+  if(h.sshKeepAlive!==undefined && typeof h.sshKeepAlive!=='boolean')throw Error('Invalid SSH keepalive setting.');
+ }
  for (const k of data.keys) if (typeof k.privateKey !== 'string') throw Error('Invalid private key.');
  for (const s of data.snippets) if (typeof s.command !== 'string') throw Error('Invalid snippet.');
  return normalized;

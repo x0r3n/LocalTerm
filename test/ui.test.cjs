@@ -286,3 +286,21 @@ uiTest('dragging tabs reorders without reconnecting or switching sessions',async
  const move=(from,to,x)=>{const source=d.querySelector(`[data-session="${from}"]`),target=d.querySelector(`[data-session="${to}"]`);target.getBoundingClientRect=()=>({left:100,width:100});d.elementFromPoint=()=>target;source.dispatchEvent(new ui.w.MouseEvent('pointerdown',{bubbles:true,button:0,clientX:20,clientY:20}));d.dispatchEvent(new ui.w.MouseEvent('pointermove',{bubbles:true,cancelable:true,clientX:x,clientY:20}));d.dispatchEvent(new ui.w.MouseEvent('pointerup',{bubbles:true,cancelable:true,clientX:x,clientY:20}));};
  move('session-1','session-3',190);assert.deepEqual(order(),['session-2','session-3','session-1']);assert.equal(d.querySelector('.terminal-pane.active select').value,'session-3');d.querySelector('[data-session="session-2"]').click();assert.deepEqual(order(),['session-2','session-3','session-1']);move('session-1','session-2',110);assert.deepEqual(order(),['session-1','session-2','session-3']);assert.equal(d.querySelector('.terminal-pane.active select').value,'session-2');assert.equal(ui.records.filter(([name])=>name==='ssh:connect').length,3);assert.equal(d.querySelectorAll('[data-workspace]').length,0);ui.dom.window.close();
 });
+
+uiTest('a host-specific SSH keepalive override survives reopening the editor', async () => {
+ const ui = await setup();
+ const doc = ui.w.document;
+ await unlock(ui);
+ await addHost(ui, 'Compatibility host');
+ const edit = () => doc.querySelector('.card-actions button.subtle').click();
+ const setting = () => doc.querySelector('[name=sshKeepAlive]');
+ edit();
+ assert.equal(setting().value, 'on');
+ setting().value = 'off';
+ ui.submit('editor-form');
+ await tick();
+ assert.equal(ui.getData().hosts[0].sshKeepAlive, false);
+ edit();
+ assert.equal(setting().value, 'off');
+ ui.dom.window.close();
+});
