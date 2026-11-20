@@ -102,7 +102,7 @@ const handlers={
  'sftp:upload':async p=>{unlocked();const r=await dialog.showOpenDialog(win,{title:'Upload file to server',properties:['openFile']});if(r.canceled)return {canceled:true};const file=r.filePaths[0],remote=path.posix.join(p.path||'.',path.basename(file));const ftp=await sftp(p.id);try{const info=await new Promise(res=>ftp.stat(remote,(e,a)=>res(e?null:a)));if(info){const answer=await dialog.showMessageBox(win,{type:'warning',message:'Replace remote file?',detail:remote,buttons:['Cancel','Replace'],defaultId:0,cancelId:0});if(answer.response!==1)return {canceled:true};}await new Promise((res,rej)=>ftp.fastPut(file,remote,e=>e?rej(e):res()));return {ok:true};}finally{ftp.end();}}
 };
 app.whenReady().then(async()=>{
- app.setName('LocalTerm');updates=new Updates({app,dialog,getWindow:()=>win,beforeQuit:()=>serial(async()=>lock())});preferences=new Preferences(app.getPath('userData'));pendingPath=await preferences.lastVault();
+ app.setName('LocalTerm');updates=new Updates({app,dialog,getWindow:()=>win,reportProgress:progress=>emit('update:progress',progress),beforeQuit:()=>serial(async()=>lock())});preferences=new Preferences(app.getPath('userData'));pendingPath=await preferences.lastVault();
  session.defaultSession.setPermissionRequestHandler((_,__,callback)=>callback(false));
  win=new BrowserWindow({width:1320,height:860,minWidth:950,minHeight:650,backgroundColor:'#101216',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,devTools:!app.isPackaged}});
  installReturnShortcut(win.webContents);

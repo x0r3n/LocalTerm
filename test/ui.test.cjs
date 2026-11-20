@@ -104,7 +104,7 @@ uiTest('two and three terminal columns preserve independent session selection, f
  assert.equal(d.querySelectorAll('.terminal-pane.active').length,3);assert.equal(d.querySelectorAll('.empty-terminal').length,0);assert.match(d.getElementById('terminal-panes').style.gridTemplateColumns,/repeat\(3/);
  const visible=()=>[...d.querySelectorAll('.terminal-pane.active')];const alpha=visible().find(p=>p.querySelector('select').value==='session-1');alpha.dispatchEvent(new ui.w.Event('pointerdown',{bubbles:true}));assert.equal(alpha.classList.contains('focused'),true);
  const select=alpha.querySelector('select');select.value='session-3';select.dispatchEvent(new ui.w.Event('change'));assert.equal(new Set(visible().map(p=>p.querySelector('select').value)).size,3);assert.equal(d.querySelector('.terminal-pane.focused select').value,'session-3');
- for(const pane of visible()){const id=pane.querySelector('select').value;pane.querySelector('.terminal-content').dispatchEvent(new ui.w.CustomEvent('terminal-input',{detail:'typed-'+id}));}await tick();for(const id of ['session-1','session-2','session-3'])assert(ui.records.some(([name,p])=>name==='ssh:data'&&p.id===id&&p.data==='typed-'+id));
+ for(const pane of visible()){const id=pane.querySelector('select').value;pane.querySelector('.terminal-mount').dispatchEvent(new ui.w.CustomEvent('terminal-input',{detail:'typed-'+id}));}await tick();for(const id of ['session-1','session-2','session-3'])assert(ui.records.some(([name,p])=>name==='ssh:data'&&p.id===id&&p.data==='typed-'+id));
  assert(ui.records.some(([name,p])=>name==='ssh:resize'&&p.id==='session-1'));assert(ui.records.some(([name,p])=>name==='ssh:resize'&&p.id==='session-2'));assert(ui.records.some(([name,p])=>name==='ssh:resize'&&p.id==='session-3'));
  d.querySelector('.terminal-pane.focused .pane-close').click();await tick();assert.equal(visible().length,2);assert.equal(d.querySelectorAll('.empty-terminal').length,0);assert.equal(layout.value,'2');
  ui.click('back-library');assert.equal(d.getElementById('workspace').classList.contains('terminal-mode'),false);assert.equal(d.getElementById('library').hidden,false);
@@ -262,10 +262,10 @@ uiTest('Vault settings saves automatic locking preferences and restores them on 
 });
 
 for(const platform of ['darwin','win32'])uiTest(`terminal selection copies and right-click pastes into clicked split pane (${platform})`,async()=>{
- const ui=await setup({platform});await unlock(ui);for(const label of ['Alpha','Beta']){await addHost(ui,label);await openHost(ui,label);}const d=ui.w.document;const layout=d.getElementById('terminal-layout');layout.value='2';layout.dispatchEvent(new ui.w.Event('change'));const panes=[...d.querySelectorAll('.terminal-pane.active')];const alpha=panes.find(p=>p.querySelector('select').value==='session-1');const content=alpha.querySelector('.terminal-content');content.dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:'selected text\nsecond line'}));await tick();assert.equal(ui.getClipboard(),'selected text\nsecond line');content.dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:''}));await tick();assert.equal(ui.getClipboard(),'selected text\nsecond line');ui.setClipboard('clipboard payload');const event=new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2});content.dispatchEvent(event);await tick();assert.equal(event.defaultPrevented,true);const sent=ui.records.filter(([name])=>name==='ssh:data').at(-1)[1];assert.equal(sent.id,'session-1');assert.equal(sent.data,'clipboard payload');assert.equal(d.getElementById('terminal-context-menu').hidden,true);ui.dom.window.close();
+ const ui=await setup({platform});await unlock(ui);for(const label of ['Alpha','Beta']){await addHost(ui,label);await openHost(ui,label);}const d=ui.w.document;const layout=d.getElementById('terminal-layout');layout.value='2';layout.dispatchEvent(new ui.w.Event('change'));const panes=[...d.querySelectorAll('.terminal-pane.active')];const alpha=panes.find(p=>p.querySelector('select').value==='session-1');const content=alpha.querySelector('.terminal-content');content.querySelector('.terminal-mount').dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:'selected text\nsecond line'}));await tick();assert.equal(ui.getClipboard(),'selected text\nsecond line');content.querySelector('.terminal-mount').dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:''}));await tick();assert.equal(ui.getClipboard(),'selected text\nsecond line');ui.setClipboard('clipboard payload');const event=new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2});content.dispatchEvent(event);await tick();assert.equal(event.defaultPrevented,true);const sent=ui.records.filter(([name])=>name==='ssh:data').at(-1)[1];assert.equal(sent.id,'session-1');assert.equal(sent.data,'clipboard payload');assert.equal(d.getElementById('terminal-context-menu').hidden,true);ui.dom.window.close();
 });
 uiTest('clipboard settings persist, apply to existing terminals, and leave tab Duplicate available',async()=>{
- const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');await openHost(ui,'Alpha');const d=ui.w.document;ui.click('back-library');ui.click('vault-menu');assert.equal(d.getElementById('terminal-clipboard-enabled').checked,true);d.getElementById('terminal-clipboard-enabled').checked=false;ui.submit('terminal-clipboard-form');await tick();assert.equal(ui.getData().settings.terminalClipboard.enabled,false);ui.click('close-settings');ui.click('vault-menu');assert.equal(d.getElementById('terminal-clipboard-enabled').checked,false);ui.click('close-settings');ui.click('return-session-top');const content=d.querySelector('.terminal-content');const count=ui.records.length;content.dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:'should not copy'}));const event=new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2});content.dispatchEvent(event);await tick();assert.equal(event.defaultPrevented,false);assert.equal(ui.records.slice(count).some(([name])=>name.startsWith('terminal:')),false);d.querySelector('[data-session]').dispatchEvent(new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2}));assert.equal(d.getElementById('terminal-context-menu').hidden,false);ui.dom.window.close();
+ const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');await openHost(ui,'Alpha');const d=ui.w.document;ui.click('back-library');ui.click('vault-menu');assert.equal(d.getElementById('terminal-clipboard-enabled').checked,true);d.getElementById('terminal-clipboard-enabled').checked=false;ui.submit('terminal-clipboard-form');await tick();assert.equal(ui.getData().settings.terminalClipboard.enabled,false);ui.click('close-settings');ui.click('vault-menu');assert.equal(d.getElementById('terminal-clipboard-enabled').checked,false);ui.click('close-settings');ui.click('return-session-top');const content=d.querySelector('.terminal-content');const count=ui.records.length;content.querySelector('.terminal-mount').dispatchEvent(new ui.w.CustomEvent('terminal-selection',{detail:'should not copy'}));const event=new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2});content.dispatchEvent(event);await tick();assert.equal(event.defaultPrevented,false);assert.equal(ui.records.slice(count).some(([name])=>name.startsWith('terminal:')),false);d.querySelector('[data-session]').dispatchEvent(new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2}));assert.equal(d.getElementById('terminal-context-menu').hidden,false);ui.dom.window.close();
 });
 uiTest('pending clipboard paste is discarded after vault lock or session close',async()=>{
  for(const close of ['lock','close']){const ui=await setup();await unlock(ui);await addHost(ui,'Alpha');await openHost(ui,'Alpha');const content=ui.w.document.querySelector('.terminal-content');const finish=ui.deferPaste();content.dispatchEvent(new ui.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,button:2}));await tick();if(close==='lock')ui.click('terminal-lock');else ui.listeners['ssh:closed']({id:'session-1'});await tick();finish('must not be sent');await tick();assert.equal(ui.records.some(([name])=>name==='terminal:paste-input'),false);ui.dom.window.close();}
@@ -303,4 +303,34 @@ uiTest('a host-specific SSH keepalive override survives reopening the editor', a
  edit();
  assert.equal(setting().value, 'off');
  ui.dom.window.close();
+});
+
+
+uiTest('update progress stays above settings until the updater clears it', async () => {
+ const ui = await setup();
+ const doc = ui.w.document;
+ try {
+  await unlock(ui);
+  ui.click('vault-menu');
+  const showProgress = ui.listeners['update:progress'];
+  const dialog = doc.getElementById('update-progress');
+  const bar = doc.getElementById('update-progress-bar');
+  showProgress({stage: 'downloading'});
+  assert.equal(dialog.open, true);
+  assert.equal(bar.hasAttribute('value'), false);
+  showProgress({stage: 'downloading', percent: 42});
+  assert.equal(bar.value, 42);
+  assert.equal(doc.getElementById('update-progress-percent').textContent, '42%');
+  showProgress({stage: 'verifying'});
+  assert.equal(bar.hasAttribute('value'), false);
+  assert.match(doc.getElementById('update-progress-status').textContent, /Verifying/);
+  showProgress({stage: 'restarting'});
+  ui.listeners['vault:locked']();
+  assert.equal(dialog.open, true);
+  assert.equal(doc.getElementById('settings').open, false);
+  showProgress({stage: 'idle'});
+  assert.equal(dialog.open, false);
+ } finally {
+  ui.dom.window.close();
+ }
 });

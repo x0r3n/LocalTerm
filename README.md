@@ -6,7 +6,7 @@ LocalTerm is a local SSH client for macOS and Windows with a portable, password-
 
 ## Download
 
-Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.6](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.6). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
+Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.7](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.7). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
 
 See the [macOS guide](docs/macos.md) and [Windows guide](docs/windows.md) for installation, shortcuts and usage.
 
@@ -55,3 +55,7 @@ Drag a terminal tab left or right in the top tab bar and release it before or af
 ## SSH keepalive (1.8.6)
 
 For an SSH server that repeatedly disconnects with the default keepalive, open **Hosts → Edit**, select **SSH keepalive → Off**, then save and reconnect. The setting applies to that host, including when it is used as a jump host. The default sends a probe every 15 seconds.
+
+## Terminal sizing and update progress (1.8.7)
+
+Terminal panes fit full rows when resizing the window, including split layouts. After selecting **Update now**, a progress indicator shows the download percentage, verification, installation preparation, and restart.

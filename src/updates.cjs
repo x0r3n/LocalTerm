@@ -8,7 +8,7 @@ function newer(tag,current){const parse=s=>/^v?(\d+)\.(\d+)\.(\d+)$/.exec(s)?.sl
 function assetFor(release,platform,arch){const version=release.tag_name.replace(/^v/,'');const name=platform==='darwin'&&arch==='arm64'?`LocalTerm-${version}-Mac-AppleSilicon.zip`:platform==='win32'&&arch==='x64'?`LocalTerm-${version}-Windows-x64-Portable.exe`:null;const a=release.assets?.find(a=>a.name===name);if(!a||!/^sha256:[a-f0-9]{64}$/.test(a.digest||'')||!a.browser_download_url?.startsWith('https://github.com/x0r3n/LocalTerm/releases/download/'))return null;return a;}
 async function response(url){const r=await fetch(url,{headers:{'User-Agent':'LocalTerm-updater','Accept':'application/vnd.github+json'},signal:AbortSignal.timeout(120000)});if(!r.ok)throw Error(`GitHub returned HTTP ${r.status}.`);return r;}
 class Updates{
- constructor({app,dialog,getWindow,beforeQuit=async()=>{}}){Object.assign(this,{app,dialog,getWindow,beforeQuit});this.busy=false;this.checkedThisRun=false;}
+ constructor({app,dialog,getWindow,beforeQuit=async()=>{},reportProgress=()=>{}}){Object.assign(this,{app,dialog,getWindow,beforeQuit,reportProgress});this.busy=false;this.checkedThisRun=false;}
  async check(manual=false){
   if(this.busy)return;this.busy=true;let installing=false;
   try{
@@ -24,13 +24,45 @@ class Updates{
   }catch(e){if(manual||installing)await this.message('Update failed',e.message);else console.error('Update check failed:',e.message);}finally{this.busy=false;}
  }
  async message(message,detail){await this.dialog.showMessageBox(this.getWindow(),{type:'info',message,detail});}
- async install(asset){
+ progress(stage, percent) {
+  this.reportProgress({stage, percent});
+  const nativeProgress = stage === 'idle' ? -1 : Number.isFinite(percent) ? percent / 100 : 2;
+  this.getWindow()?.setProgressBar?.(nativeProgress);
+ }
+ async install(asset) {
+  this.progress('downloading');
+  try {
+   await this.installPackage(asset);
+  } catch (error) {
+   this.progress('idle');
+   throw error;
+  }
+ }
+ async installPackage(asset){
   if(!this.app.isPackaged)throw Error('Updates can only be installed in a packaged application.');
   const dir=await fs.mkdtemp(path.join(this.app.getPath('temp'),'localterm-update-'));
   const downloaded=path.join(dir,asset.name);const r=await response(asset.browser_download_url);
   const handle=await fs.open(downloaded,'wx',0o600);const hash=crypto.createHash('sha256');let size=0;
-  try{for await(const chunk of r.body){size+=chunk.length;if(size>1024*1024*1024)throw Error('Update package is too large.');hash.update(chunk);await handle.writeFile(chunk);this.getWindow()?.setProgressBar?.(asset.size?size/asset.size:2);}await handle.sync();}finally{await handle.close();this.getWindow()?.setProgressBar?.(-1);}
+  let reportedPercent;
+  try {
+   for await (const chunk of r.body) {
+    size += chunk.length;
+    if (size > 1024 * 1024 * 1024) throw Error('Update package is too large.');
+    hash.update(chunk);
+    await handle.writeFile(chunk);
+    const percent = asset.size > 0 ? Math.min(100, Math.floor(size / asset.size * 100)) : undefined;
+    if (percent !== reportedPercent) {
+     reportedPercent = percent;
+     this.progress('downloading', percent);
+    }
+   }
+   await handle.sync();
+  } finally {
+   await handle.close();
+  }
+  this.progress('verifying');
   if(size!==asset.size||hash.digest('hex')!==asset.digest.slice(7))throw Error('Update verification failed. The installed application was not changed.');
+  this.progress('preparing');
   let child;
   if(process.platform==='darwin'){
    const target=path.resolve(process.execPath,'../../..');if(!target.endsWith('.app'))throw Error('Cannot find the installed application bundle.');
@@ -46,7 +78,7 @@ class Updates{
    const helper=path.join(dir,'install.ps1');await fs.writeFile(helper,`param([int]$ParentId,[string]$Source,[string]$Target)\nWait-Process -Id $ParentId -ErrorAction SilentlyContinue\nStart-Sleep -Seconds 2\n$Backup=$Target+'.previous-'+[DateTimeOffset]::Now.ToUnixTimeSeconds()\ntry { if(Test-Path -LiteralPath $Backup){throw 'A previous backup exists'}; Move-Item -LiteralPath $Target -Destination $Backup -ErrorAction Stop; Copy-Item -LiteralPath $Source -Destination $Target -ErrorAction Stop; Start-Process -FilePath $Target } catch { if(Test-Path -LiteralPath $Backup){Move-Item -LiteralPath $Backup -Destination $Target -Force; Start-Process -FilePath $Target} }\n`);
    child=spawn('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,String(process.pid),downloaded,target],{detached:true,stdio:'ignore',windowsHide:true});
   }else throw Error('This platform is not supported.');
-  await new Promise((resolve,reject)=>{child.once('spawn',resolve);child.once('error',reject);});child.unref();await this.beforeQuit();this.app.quit();
+  await new Promise((resolve,reject)=>{child.once('spawn',resolve);child.once('error',reject);});child.unref();this.progress('restarting');await this.beforeQuit();this.app.quit();
  }
 }
 module.exports={Updates,newer,assetFor};

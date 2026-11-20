@@ -10,7 +10,7 @@ function action(fn) { return async event => { try { await fn(event); } catch (er
 function el(tag, className, text) { const e = document.createElement(tag); if (className) e.className = className; if (text !== undefined) e.textContent = text; return e; }
 function button(text, className, fn) { const b = el('button', className, text); b.type = 'button'; b.addEventListener('click', action(fn)); return b; }
 function closeSessions() {window.sftpBrowser?.reset();hideTerminalMenu();state.workspaces.clear();state.activeWorkspace=null;state.pickerTabs.clear();state.activePicker=null;$('host-picker').hidden=true;$('host-picker-search').value='';$('host-picker-results').replaceChildren(); clearTerminalDrag();state.dockTree=null; for (const session of state.sessions.values()) { session.term.dispose(); session.unobserve?.(); } for(const timer of logTimers.values())clearTimeout(timer);logTimers.clear();$('terminal-logs').replaceChildren();$('terminal-logs').hidden=true;state.sessions.clear(); state.active = null; state.slots=[]; state.focusSlot=0; $('workspace').classList.remove('terminal-mode'); $('terminal-tabs').replaceChildren(); $('terminal-panes').replaceChildren();updateReturnButton(); }
-function applyVault(result) { if (!result || result.canceled || result.cancelled) return; const wasLocked = state.locked; Object.assign(state, result); $('welcome').hidden = !state.locked; $('workspace').hidden = state.locked; if (state.locked) { state.epoch++; state.data = null; state.forwards.clear(); closeSessions(); for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close(); $('editor-fields').replaceChildren(); $('editor-form').onsubmit=null; $('items').replaceChildren(); $('file-list').replaceChildren(); $('new-password').value = '';$('import-password').value=''; $('create-password').value = ''; $('create-confirm').value = ''; $('vault-password').value = ''; $('selected-file').hidden = !state.path; $('selected-file').textContent = state.path || ''; $('unlock-button').textContent = state.path ? 'Unlock vault' : 'Open encrypted vault'; $('vault-password').focus(); } else { state.data.forwards ||= []; if (wasLocked) { state.view = 'hosts'; state.group = ''; $('search').value = ''; } $('vault-password').value = ''; $('vault-path').textContent = state.path; $('vault-path').title = state.path; $('settings-path').textContent = state.path; render(); if(wasLocked){refreshForwards();focusHostSearch();call('update:check',{manual:false}).catch(()=>{});}if(result.preferenceWarning)notify(result.preferenceWarning); } }
+function applyVault(result) { if (!result || result.canceled || result.cancelled) return; const wasLocked = state.locked; Object.assign(state, result); $('welcome').hidden = !state.locked; $('workspace').hidden = state.locked; if (state.locked) { state.epoch++; state.data = null; state.forwards.clear(); closeSessions(); for (const dialog of document.querySelectorAll('dialog[open]:not(#update-progress)')) dialog.close(); $('editor-fields').replaceChildren(); $('editor-form').onsubmit=null; $('items').replaceChildren(); $('file-list').replaceChildren(); $('new-password').value = '';$('import-password').value=''; $('create-password').value = ''; $('create-confirm').value = ''; $('vault-password').value = ''; $('selected-file').hidden = !state.path; $('selected-file').textContent = state.path || ''; $('unlock-button').textContent = state.path ? 'Unlock vault' : 'Open encrypted vault'; $('vault-password').focus(); } else { state.data.forwards ||= []; if (wasLocked) { state.view = 'hosts'; state.group = ''; $('search').value = ''; } $('vault-password').value = ''; $('vault-path').textContent = state.path; $('vault-path').title = state.path; $('settings-path').textContent = state.path; render(); if(wasLocked){refreshForwards();focusHostSearch();call('update:check',{manual:false}).catch(()=>{});}if(result.preferenceWarning)notify(result.preferenceWarning); } }
 async function save(data) { const result = await call('vault:save', { data }); state.data = result?.data || data; applyTerminalThemes(); render(); }
 function focusHostSearch(){if(!state.locked&&state.view==='hosts'&&!$('library').hidden&&!document.querySelector('dialog[open]'))$('search').focus({preventScroll:true});}
 function switchView(view) { state.view = view; state.group = ''; $('search').value = ''; render();if(view==='hosts')focusHostSearch(); }
@@ -166,10 +166,21 @@ function installTerminalClipboard(session){
 }
 async function connect(host,pickerId=null) {
  saveWorkspace();const epoch=state.epoch;state.activePicker=null;$('host-picker').hidden=true;$('terminal-tools').hidden=false;$('terminal-panes').hidden=false;terminalMode();
- const term=new Terminal({theme:window.LocalTermThemes.resolve(host.terminalTheme),fontFamily:'Menlo, Monaco, Consolas, monospace',fontSize:13,cursorBlink:true,scrollback:10000});const fit=new FitAddon.FitAddon();term.loadAddon(fit);const pane=el('div','terminal-pane active connecting');const heading=el('div','pane-heading');heading.append(el('span',null,`Connecting to ${host.label}…`));const content=el('div','terminal-content');pane.style.backgroundColor=content.style.backgroundColor=window.LocalTermThemes.resolve(host.terminalTheme).background;pane.append(heading,content);$('terminal-panes').append(pane);const replaced=state.sessions.get(state.slots[state.focusSlot]);replaced?.pane.classList.remove('active');pane.style.order=String(state.focusSlot);$('terminal-panes').querySelectorAll('.empty-terminal').forEach(p=>p.remove());term.open(content);fit.fit();term.writeln('Connecting…');
+ const term=new Terminal({theme:window.LocalTermThemes.resolve(host.terminalTheme),fontFamily:'Menlo, Monaco, Consolas, monospace',fontSize:13,cursorBlink:true,scrollback:10000});const fit=new FitAddon.FitAddon();term.loadAddon(fit);const pane=el('div','terminal-pane active connecting');const heading=el('div','pane-heading');heading.append(el('span',null,`Connecting to ${host.label}…`));const content=el('div','terminal-content');pane.style.backgroundColor=content.style.backgroundColor=window.LocalTermThemes.resolve(host.terminalTheme).background;// FitAddon measures xterm's parent. Keep the visual padding outside that parent.
+ const mount=el('div','terminal-mount');content.append(mount);pane.append(heading,content);$('terminal-panes').append(pane);const replaced=state.sessions.get(state.slots[state.focusSlot]);replaced?.pane.classList.remove('active');pane.style.order=String(state.focusSlot);$('terminal-panes').querySelectorAll('.empty-terminal').forEach(p=>p.remove());term.open(mount);fit.fit();term.writeln('Connecting…');
  let result;try{result=await call('ssh:connect',{hostId:host.id,cols:term.cols,rows:term.rows});}catch(e){term.dispose();pane.remove();if(!state.locked){if(pickerId&&state.pickerTabs.has(pickerId))showHostPicker(pickerId);else if(state.sessions.size)renderTerminals();else render();}throw e;}
  if(state.locked||epoch!==state.epoch||(pickerId&&!state.pickerTabs.has(pickerId))){await call('ssh:close',{id:result.id}).catch(()=>{});term.dispose();pane.remove();if(!state.locked){if(state.activePicker)showHostPicker(state.activePicker);else if(state.sessions.size)renderTerminals();else render();}return;}
- if(pickerId)state.pickerTabs.delete(pickerId);pane.classList.remove('connecting');const session={id:result.id,term,fit,pane,heading,content,host,closed:false};terminalMenu(heading,()=>session.id);state.sessions.set(result.id,session);applySessionTheme(session);installTerminalClipboard(session);makeTerminalDropTarget(pane,()=>state.slots.indexOf(session.id));pane.addEventListener('pointerdown',()=>focusPane(session.id,false));pane.addEventListener('focusin',()=>focusPane(session.id,false));term.onData(data=>{if(!session.closed)call('ssh:data',{id:session.id,data}).catch(e=>notify(e.message));});let resizeTimer;const observer=new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!state.locked&&!$('sessions').hidden&&pane.classList.contains('active')){fit.fit();if(!session.closed)call('ssh:resize',{id:session.id,cols:term.cols,rows:term.rows}).catch(()=>{});}},80);});observer.observe(content);session.unobserve=()=>{observer.disconnect();clearTimeout(resizeTimer);};try{await call('ssh:start',{id:session.id});}catch(error){session.closed=true;await closeSession(session.id);if(!state.locked&&!/Session is closed/.test(error.message))throw error;return;}if(state.locked||state.sessions.get(session.id)!==session)return;saveWorkspace();singleSession(session.id);renderTerminals();
+ if(pickerId)state.pickerTabs.delete(pickerId);pane.classList.remove('connecting');const session={id:result.id,term,fit,pane,heading,content,host,closed:false};terminalMenu(heading,()=>session.id);state.sessions.set(result.id,session);applySessionTheme(session);installTerminalClipboard(session);makeTerminalDropTarget(pane,()=>state.slots.indexOf(session.id));pane.addEventListener('pointerdown',()=>focusPane(session.id,false));pane.addEventListener('focusin',()=>focusPane(session.id,false));term.onData(data=>{if(!session.closed)call('ssh:data',{id:session.id,data}).catch(e=>notify(e.message));});const observer = new ResizeObserver(() => {
+  if (state.locked || $('sessions').hidden || $('terminal-panes').hidden || !pane.classList.contains('active')) return;
+  const {cols, rows} = term;
+  fit.fit();
+  if (!session.closed && (cols !== term.cols || rows !== term.rows)) {
+   call('ssh:resize', {id: session.id, cols: term.cols, rows: term.rows}).catch(() => {});
+  }
+ });
+ observer.observe(mount);
+ session.unobserve = () => observer.disconnect();
+ try{await call('ssh:start',{id:session.id});}catch(error){session.closed=true;await closeSession(session.id);if(!state.locked&&!/Session is closed/.test(error.message))throw error;return;}if(state.locked||state.sessions.get(session.id)!==session)return;saveWorkspace();singleSession(session.id);renderTerminals();
 }
 function updateReturnButton(){const button=$('return-session-top');button.hidden=state.locked||!state.sessions.size;button.textContent=`›_ Return to session (${state.sessions.size}) · ${shortcutLabel}R`;button.title=state.sessions.get(state.active)?.host.label||'Return to the last terminal';}
 function returnToSession(){if(state.locked||!state.sessions.size||document.querySelector('dialog[open]'))return;const id=state.sessions.has(state.active)?state.active:state.sessions.keys().next().value;showSession(id);}
@@ -281,6 +292,29 @@ $('import-form').addEventListener('submit',action(async e=>{e.preventDefault();c
 
 let lastActivityReport=0;for(const name of ['keydown','pointerdown','pointermove','wheel'])document.addEventListener(name,event=>{if(!event.isTrusted||state.locked||Date.now()-lastActivityReport<10000)return;lastActivityReport=Date.now();call('app:activity').catch(()=>{});},{capture:true,passive:true});
 
+const updateProgressDialog = $('update-progress');
+updateProgressDialog.addEventListener('cancel', event => event.preventDefault());
+window.api.on('update:progress', ({stage, percent}) => {
+ if (stage === 'idle') {
+  if (updateProgressDialog.open) updateProgressDialog.close();
+  return;
+ }
+ const messages = {
+  downloading: 'Downloading update…',
+  verifying: 'Verifying download…',
+  preparing: 'Preparing installation…',
+  restarting: 'Restarting LocalTerm…'
+ };
+ if (!Object.hasOwn(messages, stage)) return;
+ const progress = $('update-progress-bar');
+ const status = $('update-progress-status');
+ if (status.textContent !== messages[stage]) status.textContent = messages[stage];
+ const measurable = stage === 'downloading' && Number.isFinite(percent);
+ if (measurable) progress.value = percent;
+ else progress.removeAttribute('value');
+ $('update-progress-percent').textContent = measurable ? percent + '%' : '';
+ if (!updateProgressDialog.open) updateProgressDialog.showModal();
+});
 $('check-updates').addEventListener('click',action(async()=>{const b=$('check-updates');b.disabled=true;b.textContent='Checking…';try{await call('update:check',{manual:true});}finally{b.disabled=false;b.textContent='Check for updates';}}));
 
 $('terminal-workspace').onclick=render;

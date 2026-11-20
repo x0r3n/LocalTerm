@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.6/LocalTerm-1.8.6-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.7/LocalTerm-1.8.7-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -91,3 +91,7 @@ The macOS build includes a local network usage description and distinct executab
 ## SSH keepalive (1.8.6)
 
 For an SSH server that repeatedly disconnects with the default keepalive, open **Hosts → Edit**, select **SSH keepalive → Off**, then save and reconnect. The setting applies to that host, including when it is used as a jump host. The default sends a probe every 15 seconds.
+
+## Terminal sizing and update progress (1.8.7)
+
+Terminal panes fit full rows when resizing the window, including split layouts. After selecting **Update now**, a progress indicator shows the download percentage, verification, installation preparation, and restart.
