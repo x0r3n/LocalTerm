@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.7/LocalTerm-1.8.7-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.7/LocalTerm-1.8.7-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
+Download the [portable EXE](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.8/LocalTerm-1.8.8-Windows-x64-Portable.exe), or extract the complete [Windows ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.8/LocalTerm-1.8.8-Windows-x64.zip) and run `LocalTerm.exe` with its accompanying files in place. The portable EXE extracts and runs the app. These packages target Intel/AMD x64; there is no separate Windows ARM build. They are unsigned and do not require Node.js or Electron. Close the old app before replacing it and keep your vault file.
 
 ## Shortcuts
 
@@ -87,3 +87,7 @@ For an SSH server that repeatedly disconnects with the default keepalive, open *
 ## Terminal sizing and update progress (1.8.7)
 
 Terminal panes fit full rows when resizing the window, including split layouts. After selecting **Update now**, a progress indicator shows the download percentage, verification, installation preparation, and restart.
+
+## Terminal background (1.8.8)
+
+The space below the last full terminal row now uses the selected theme background, including in split panes.

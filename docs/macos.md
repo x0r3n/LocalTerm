@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.7/LocalTerm-1.8.7-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.8/LocalTerm-1.8.8-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -95,3 +95,7 @@ For an SSH server that repeatedly disconnects with the default keepalive, open *
 ## Terminal sizing and update progress (1.8.7)
 
 Terminal panes fit full rows when resizing the window, including split layouts. After selecting **Update now**, a progress indicator shows the download percentage, verification, installation preparation, and restart.
+
+## Terminal background (1.8.8)
+
+The space below the last full terminal row now uses the selected theme background, including in split panes.
