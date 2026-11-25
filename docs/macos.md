@@ -4,7 +4,7 @@
 
 ## Installation
 
-Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.9/LocalTerm-1.8.9-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
+Download the [Apple Silicon ZIP](https://github.com/x0r3n/LocalTerm/releases/download/v1.8.10/LocalTerm-1.8.10-Mac-AppleSilicon.zip), extract it and copy `LocalTerm.app` to Applications. This build is for Apple Silicon, not Intel Macs. Quit the old version before replacing it; keep your vault file. The build is ad hoc signed and not notarized. Node.js and Electron are not needed to run it.
 
 If macOS blocks an app downloaded from a trusted source, remove its quarantine attribute after copying it to Applications:
 
@@ -103,3 +103,9 @@ The space below the last full terminal row now uses the selected theme backgroun
 ## Compact SFTP host controls (1.8.9)
 
 The SFTP host search, host selector, and Connect button now share a compact row, leaving more space for the file list.
+
+## Compact cards and aligned terminal logs (1.8.10)
+
+- Keys and Port forwarding use the same compact cards as Hosts.
+- Double-click a host card to connect, or use its **Connect** button.
+- Terminal logs align the date, host, user, and **Delete** action in consistent columns.

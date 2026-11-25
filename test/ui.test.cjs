@@ -7,7 +7,7 @@ let JSDOM;
 try { ({ JSDOM } = require(process.env.LOCALTERM_JSDOM || 'jsdom')); } catch {}
 const uiTest = JSDOM ? test : test.skip;
 const tick = () => new Promise(resolve => setTimeout(resolve, 5));
-async function setup({ deferConnect = false, platform = 'darwin', initialHosts = [] } = {}) {
+async function setup({ deferConnect = false, platform = 'darwin', initialHosts = [], initialLogs = [] } = {}) {
   let resolveConnect; let sessionCount=0; let clipboardText='',finishPaste=null; const forwards=new Map();
   const dom = new JSDOM(fs.readFileSync(path.join(__dirname, '../src/index.html'), 'utf8'), { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://localterm.test' });
   const w = dom.window;
@@ -32,6 +32,7 @@ async function setup({ deferConnect = false, platform = 'darwin', initialHosts =
     if (name === 'vault:lock') { locked = true; return snapshot(); }
     if (name === 'ssh:connect') return deferConnect ? new Promise(resolve => { resolveConnect = resolve; }) : { id: 'session-'+(++sessionCount) };
     if (['ssh:start','ssh:close','ssh:resize'].includes(name)) return {};
+    if(name==='logs:list')return initialLogs;
     if(name==='forward:list')return [...forwards.values()];
     if(name==='forward:start'){const status={ruleId:payload.ruleId,status:'running',bindPort:1080};forwards.set(payload.ruleId,status);return status;}
     if(name==='forward:stop'){forwards.delete(payload.ruleId);listeners['forward:status']?.({ruleId:payload.ruleId,status:'stopped'});return {};}
@@ -94,6 +95,47 @@ uiTest('locking while SSH connection is pending closes late connection', async (
 async function unlock(ui){ui.click('create-vault');ui.w.document.getElementById('create-password').value=ui.w.document.getElementById('create-confirm').value='a strong test password';ui.submit('create-form');await tick();}
 async function addHost(ui,label){ui.w.document.querySelector('[data-view=hosts]').click();ui.click('add-item');const fields=ui.w.document.getElementById('editor-fields');fields.querySelector('[name=label]').value=label;fields.querySelector('[name=address]').value=label.toLowerCase()+'.test';ui.submit('editor-form');await tick();}
 async function openHost(ui,label){if(!ui.w.document.getElementById('sessions').hidden)ui.click('back-library');const card=[...ui.w.document.querySelectorAll('.card')].find(c=>c.querySelector('h3').textContent===label);[...card.querySelectorAll('button')].find(b=>b.textContent.startsWith('Connect')).click();await tick();}
+uiTest('double-clicking a host card connects once while card buttons keep their own actions',async()=>{
+ const ui=await setup();
+ try {
+   await unlock(ui);
+   await addHost(ui,'Demo');
+   const card=ui.w.document.querySelector('.host-card');
+   const doubleClick=target=>target.dispatchEvent(new ui.w.MouseEvent('dblclick',{bubbles:true,detail:2}));
+   const edit=[...card.querySelectorAll('button')].find(button=>button.textContent==='Edit');
+   doubleClick(edit);
+   assert.equal(ui.records.filter(([name])=>name==='ssh:connect').length,0);
+   doubleClick(card.querySelector('h3'));
+   await tick();
+   assert.equal(ui.records.filter(([name])=>name==='ssh:connect').length,1);
+ } finally {
+   ui.dom.window.close();
+ }
+});
+uiTest('terminal log rows keep date, host, user and delete separate from the output',async()=>{
+ const logs=[
+   {id:'a',updated:1000,host:'Short',username:'user',text:'first output'},
+   {id:'b',updated:0,host:'A longer host label',username:'another-user',text:'second output'}
+ ];
+ const ui=await setup({initialLogs:logs});
+ try {
+   await unlock(ui);
+   ui.click('terminal-logs-open');
+   await tick();
+   const root=ui.w.document.getElementById('terminal-logs');
+   const rows=[...root.querySelectorAll('.terminal-log-row:not(.terminal-log-headings)')];
+   assert.equal(rows.length,2);
+   assert.equal(root.querySelector('pre').hidden,true);
+   for(const [index,row] of rows.entries()){
+     assert.deepEqual([...row.querySelectorAll('.terminal-log-columns span')].slice(1).map(cell=>cell.textContent),[logs[index].host,logs[index].username]);
+     assert.equal(row.lastElementChild.textContent,'Delete');
+     row.firstElementChild.click();
+     assert.equal(root.querySelector('pre').textContent,logs[index].text);
+   }
+ } finally {
+   ui.dom.window.close();
+ }
+});
 uiTest('two and three terminal columns preserve independent session selection, focus and closing',async()=>{
  const ui=await setup();const d=ui.w.document;await unlock(ui);for(const label of ['Alpha','Beta','Gamma'])await addHost(ui,label);
  await openHost(ui,'Alpha');assert.equal(d.getElementById('workspace').classList.contains('terminal-mode'),true);

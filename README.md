@@ -6,7 +6,7 @@ LocalTerm is a local SSH client for macOS and Windows with a portable, password-
 
 ## Download
 
-Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.9](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.9). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
+Get the macOS Apple Silicon ZIP, Windows x64 portable EXE or Windows ZIP from [Release 1.8.10](https://github.com/x0r3n/LocalTerm/releases/tag/v1.8.10). The release includes source and SHA-256 checksums. The Mac build is ad hoc signed and not notarized; Windows builds are unsigned.
 
 See the [macOS guide](docs/macos.md) and [Windows guide](docs/windows.md) for installation, shortcuts and usage.
 
@@ -67,3 +67,9 @@ The space below the last full terminal row now uses the selected theme backgroun
 ## Compact SFTP host controls (1.8.9)
 
 The SFTP host search, host selector, and Connect button now share a compact row, leaving more space for the file list.
+
+## Compact cards and aligned terminal logs (1.8.10)
+
+- Keys and Port forwarding use the same compact cards as Hosts.
+- Double-click a host card to connect, or use its **Connect** button.
+- Terminal logs align the date, host, user, and **Delete** action in consistent columns.

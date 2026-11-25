@@ -24,7 +24,7 @@ function render() {
  $('workspace').classList.remove('terminal-mode'); $('library').hidden = false; $('sessions').hidden = true;
  const [title, subtitle, singular] = names[state.view];
  updateReturnButton();
- $('items').classList.toggle('compact-hosts',state.view==='hosts');
+ $('items').classList.toggle('compact-cards',state.view!=='snippets');
  $('breadcrumb').textContent = title; $('page-title').textContent = state.group || title; $('page-subtitle').textContent = subtitle; $('add-item').textContent = `＋ New ${singular}`; $('search').placeholder = `Search ${title.toLowerCase()}…`;
  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
  for (const [collection, id] of [['hosts','host-count'],['keys','key-count'],['snippets','snippet-count'],['forwards','forward-count']]) $(id).textContent = state.data[collection].length;
@@ -33,7 +33,42 @@ function render() {
  $('result-count').textContent = `${items.length} ${items.length === 1 ? singular : title.toLowerCase()}`;
  $('items').replaceChildren();
  if (!items.length) { const empty = el('div','empty'); empty.append(el('div','empty-icon', state.view === 'hosts' ? '›_' : state.view === 'keys' ? '⚿' : '⌘'),el('h3',null,query || state.group ? 'No matches found' : `Your ${title.toLowerCase()} will live here`),el('p',null,query || state.group ? 'Try a different search or group.' : `Add your first ${singular} to this encrypted vault.`)); if (!query && !state.group) empty.append(button(`＋ Add ${singular}`,'primary',()=>editItem())); $('items').append(empty); }
- items.forEach(item => { if(state.view==='forwards'){$('items').append(forwardCard(item));return;} const card=el('article',state.view==='hosts'?'card host-card':'card'); const top=el('div','card-top'); top.append(el('div','host-icon',state.view==='hosts'?'›_':state.view==='keys'?'⚿':'⌘')); const meta=el('div'); meta.append(el('h3',null,item.label)); meta.append(el('div','address',state.view==='hosts'?`${item.username}@${item.address}:${item.port || 22}`:state.view==='keys'?'Private key · encrypted': 'Shell command')); top.append(meta); card.append(top); if(item.group)card.append(el('span','group-tag',item.group)); if(state.view==='snippets')card.append(el('div','note',item.command)); else if(item.notes)card.append(el('div','note',item.notes)); const actions=el('div','card-actions'); const collection=state.view; if(collection==='hosts')actions.append(button('Connect ↗','connect',()=>connect(item))); if(collection==='snippets')actions.append(button('Run in session','connect',()=>runSnippet(item))); actions.append(button('Edit','subtle',()=>editItem(item,collection)),button('Delete','subtle',()=>deleteItem(item,collection))); card.append(actions); $('items').append(card); });
+ const collection=state.view;
+ for(const item of items){
+   if(collection==='forwards'){
+     $('items').append(forwardCard(item));
+     continue;
+   }
+   const isHost=collection==='hosts';
+   const isKey=collection==='keys';
+   const card=el('article',isHost?'card compact-card host-card':isKey?'card compact-card':'card');
+   const top=el('div','card-top');
+   const meta=el('div');
+   const title=el('h3',null,item.label);
+   title.title=item.label;
+   const address=isHost?`${item.username}@${item.address}:${item.port || 22}`:isKey?'Private key · encrypted':'Shell command';
+   const description=el('div','address',address);
+   description.title=address;
+   meta.append(title,description);
+   top.append(el('div','host-icon',isHost?'›_':isKey?'⚿':'⌘'),meta);
+   card.append(top);
+   if(item.group)card.append(el('span','group-tag',item.group));
+   if(collection==='snippets')card.append(el('div','note',item.command));
+   else if(item.notes)card.append(el('div','note',item.notes));
+   const actions=el('div','card-actions');
+   if(isHost){
+     actions.append(button('Connect ↗','connect',event=>{
+       if(event.detail<=1)return connect(item);
+     }));
+     card.addEventListener('dblclick',action(event=>{
+       if(!event.target.closest('button'))return connect(item);
+     }));
+   }
+   if(collection==='snippets')actions.append(button('Run in session','connect',()=>runSnippet(item)));
+   actions.append(button('Edit','subtle',()=>editItem(item,collection)),button('Delete','subtle',()=>deleteItem(item,collection)));
+   card.append(actions);
+   $('items').append(card);
+ }
  if(state.sessions.size){const resume=button(`›_ Return to session (${state.sessions.size})`,'subtle wide',returnToSession);$('items').append(resume);}
  if(openingHosts)focusHostSearch();
 }
@@ -187,7 +222,29 @@ function returnToSession(){if(state.locked||!state.sessions.size||document.query
 function showSession(id){if(!state.sessions.has(id))return;saveWorkspace();const group=[...state.workspaces.entries()].find(([,g])=>g.slots.includes(id));if(group){showWorkspace(group[0]);focusPane(id);return;}singleSession(id);renderTerminals();}
 
 function forwardDescription(rule){const host=state.data.hosts.find(h=>h.id===rule.hostId);const endpoint=`${rule.bindAddress}:${rule.bindPort}`;return rule.type==='dynamic'?`SOCKS5 ${endpoint} · via ${host?.label||'Missing host'}`:`${rule.type==='remote'?'Remote':'Local'} ${endpoint} → ${rule.targetAddress}:${rule.targetPort} · via ${host?.label||'Missing host'}`;}
-function forwardCard(rule){const card=el('article','card forward-card');const status=state.forwards.get(rule.id);const top=el('div','card-top');const meta=el('div');meta.append(el('h3',null,rule.label),el('div','address',forwardDescription(rule)));top.append(el('div','host-icon','⇄'),meta);card.append(top);const badge=el('div',`forward-state ${status?.status||'stopped'}`,status?.status==='running'?`● Running · port ${status.bindPort||rule.bindPort}`:status?.status==='starting'?'◌ Connecting…':status?.status==='error'?`● ${status.message||'Tunnel error'}`:'○ Stopped');card.append(badge);const actions=el('div','card-actions');const running=['running','starting'].includes(status?.status);const start=button(running?'Stop':'Start','connect',()=>toggleForward(rule));start.disabled=status?.status==='starting';actions.append(start,button('Edit','subtle',()=>editItem(rule,'forwards')),button('Delete','subtle',()=>deleteItem(rule,'forwards')));card.append(actions);return card;}
+function forwardCard(rule){
+ const card=el('article','card compact-card forward-card');
+ const status=state.forwards.get(rule.id);
+ const top=el('div','card-top');
+ const meta=el('div');
+ const title=el('h3',null,rule.label);
+ title.title=rule.label;
+ const route=forwardDescription(rule);
+ const description=el('div','address',route);
+ description.title=route;
+ const badge=el('span',`forward-state ${status?.status||'stopped'}`,status?.status==='running'?`● Running · port ${status.bindPort||rule.bindPort}`:status?.status==='starting'?'◌ Connecting…':status?.status==='error'?`● ${status.message||'Tunnel error'}`:'○ Stopped');
+ badge.title=badge.textContent;
+ meta.append(title,description);
+ top.append(el('div','host-icon','⇄'),meta);
+ card.append(top);
+ const actions=el('div','card-actions');
+ const running=['running','starting'].includes(status?.status);
+ const start=button(running?'Stop':'Start','connect',()=>toggleForward(rule));
+ start.disabled=status?.status==='starting';
+ actions.append(start,badge,button('Edit','subtle',()=>editItem(rule,'forwards')),button('Delete','subtle',()=>deleteItem(rule,'forwards')));
+ card.append(actions);
+ return card;
+}
 function updateForwardStatus(payload){if(state.locked)return;if(payload.status==='stopped')state.forwards.delete(payload.ruleId);else state.forwards.set(payload.ruleId,payload);if(state.view==='forwards'&&!$('library').hidden)render();}
 async function refreshForwards(){try{const items=await call('forward:list');if(state.locked)return;state.forwards=new Map(items.map(item=>[item.ruleId,item]));if(state.view==='forwards'&&!$('library').hidden)render();}catch(e){notify(e.message);}}
 async function toggleForward(rule){const status=state.forwards.get(rule.id);if(status&&['running','starting'].includes(status.status)){await call('forward:stop',{ruleId:rule.id});state.forwards.delete(rule.id);}else{const epoch=state.epoch;state.forwards.set(rule.id,{ruleId:rule.id,status:'starting'});render();try{const result=await call('forward:start',{ruleId:rule.id});if(state.locked||epoch!==state.epoch)return;state.forwards.set(rule.id,result);}catch(e){if(!state.locked&&epoch===state.epoch)state.forwards.set(rule.id,{status:'error',message:e.message});if(!state.locked)render();throw e;}}if(!state.locked)render();}
@@ -322,4 +379,64 @@ const logTimers=new Map();
 function scheduleTerminalLog(session){if(logTimers.has(session.id))return;logTimers.set(session.id,setTimeout(()=>{logTimers.delete(session.id);persistTerminalLog(session);},3000));}
 async function persistTerminalLog(session){if(!session||session.logDisabled||state.locked)return;const logEpoch=state.epoch;clearTimeout(logTimers.get(session.id));logTimers.delete(session.id);if(session.term.buffer)await new Promise(resolve=>session.term.write('',resolve));if(state.locked||logEpoch!==state.epoch)return;const b=session.term.buffer?.active;if(!b)return;const lines=[],limit=state.data.settings?.terminalLogLines||2000;for(let i=Math.max(0,b.length-limit);i<b.length;i++)lines.push(b.getLine(i)?.translateToString(true)||'');try{await call('logs:save',{id:session.id,host:session.host.label,username:session.host.username,text:lines.join('\n')});}catch(e){if(!state.locked)notify('Terminal log could not be saved: '+e.message);}}
 $('terminal-logs-form').onsubmit=action(async e=>{e.preventDefault();const lines=Number($('terminal-log-lines').value);await call('logs:settings',{lines});state.data.settings ||= {};state.data.settings.terminalLogLines=lines;notify('Terminal log settings saved.',true);});
-$('terminal-logs-open').onclick=action(async()=>{for(const session of state.sessions.values())await persistTerminalLog(session);const logs=await call('logs:list');render();$('library').hidden=true;const root=$('terminal-logs');root.hidden=false;root.replaceChildren(el('h1',null,'Terminal logs'),el('p','muted','Recent output is encrypted and stored on this computer. Select a session to view it.'));root.append(button('Restore archive…','',action(async()=>{const result=await call('logs:restore');if(!result.canceled){notify('Archive restored.',true);$('terminal-logs-open').click();}})),button('Archive encrypted logs…','',action(async()=>{const result=await call('logs:archive');if(!result.canceled)notify('Encrypted archive saved.',true);})),button('Delete all logs','',action(async()=>{if(confirm('Permanently delete all local terminal logs?')){await call('logs:delete',{});for(const session of state.sessions.values())session.logDisabled=true;$('terminal-logs-open').click();}})));for(const log of logs){const row=el('div');row.append(button(new Date(log.updated).toLocaleString()+' · '+log.host+' · '+log.username,'',()=>{let pre=root.querySelector('pre');if(!pre){pre=el('pre');root.append(pre);}pre.textContent=log.text;}),button('Delete','',action(async()=>{if(confirm('Permanently delete this terminal log?')){await call('logs:delete',{id:log.id});const session=state.sessions.get(log.id);if(session)session.logDisabled=true;$('terminal-logs-open').click();}})));root.append(row);}if(!logs.length)root.append(el('p',null,'No terminal logs yet.'));});
+$('terminal-logs-open').onclick=action(async()=>{
+ for(const session of state.sessions.values())await persistTerminalLog(session);
+ const logs=await call('logs:list');
+ render();
+ $('library').hidden=true;
+ const root=$('terminal-logs');
+ root.hidden=false;
+ root.replaceChildren(el('h1',null,'Terminal logs'),el('p','muted','Recent output is encrypted and stored on this computer. Select a session to view it.'));
+ root.append(
+   button('Restore archive…','',async()=>{
+     const result=await call('logs:restore');
+     if(!result.canceled){notify('Archive restored.',true);$('terminal-logs-open').click();}
+   }),
+   button('Archive encrypted logs…','',async()=>{
+     const result=await call('logs:archive');
+     if(!result.canceled)notify('Encrypted archive saved.',true);
+   }),
+   button('Delete all logs','',async()=>{
+     if(!confirm('Permanently delete all local terminal logs?'))return;
+     await call('logs:delete',{});
+     for(const session of state.sessions.values())session.logDisabled=true;
+     $('terminal-logs-open').click();
+   })
+ );
+ if(!logs.length){
+   root.append(el('p',null,'No terminal logs yet.'));
+   return;
+ }
+ const list=el('div','terminal-log-list');
+ const headings=el('div','terminal-log-row terminal-log-headings muted');
+ const labels=el('div','terminal-log-columns');
+ labels.append(el('span',null,'Date'),el('span',null,'Host'),el('span',null,'User'));
+ headings.append(labels,el('span',null,'Actions'));
+ list.append(headings);
+ const output=el('pre');
+ output.hidden=true;
+ for(const log of logs){
+   const date=new Date(log.updated).toLocaleString();
+   const row=el('div','terminal-log-row');
+   const open=button(undefined,'terminal-log-columns',()=>{
+     output.textContent=log.text;
+     output.hidden=false;
+   });
+   for(const value of [date,log.host,log.username]){
+     const cell=el('span',null,value);
+     cell.title=value;
+     open.append(cell);
+   }
+   const remove=button('Delete','',async()=>{
+     if(!confirm('Permanently delete this terminal log?'))return;
+     await call('logs:delete',{id:log.id});
+     const session=state.sessions.get(log.id);
+     if(session)session.logDisabled=true;
+     $('terminal-logs-open').click();
+   });
+   remove.setAttribute('aria-label',`Delete log for ${log.host} from ${date}`);
+   row.append(open,remove);
+   list.append(row);
+ }
+ root.append(list,output);
+});
