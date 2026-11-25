@@ -1,0 +1,1 @@
+c4efd327d51db874faa345d1cefdf2f65d0ac8eed175a86e856155e738ddfe21  LocalTerm-1.8.9-source.zip
